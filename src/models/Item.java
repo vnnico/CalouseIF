@@ -1,17 +1,19 @@
 package models;
 
+import java.math.BigDecimal;
+
 public class Item {
 
 	private String item_id;
 	private String item_name;
 	private String item_size;
-	private String item_price;
+	private BigDecimal item_price;
 	private String item_category;
 	private String item_status;
 	private String item_wishlist;
 	private String item_offer_status;
 	
-	public Item(String item_id, String item_name, String item_size, String item_price, String item_category,
+	public Item(String item_id, String item_name, String item_size, BigDecimal item_price, String item_category,
 			String item_status, String item_wishlist, String item_offer_status) {
 		super();
 		this.item_id = item_id;
@@ -25,12 +27,12 @@ public class Item {
 	}
 	
 	
-	public static void uploadItem(String item_name, String item_size, String item_price) {
+	public static void uploadItem(String item_name, String item_size, BigDecimal item_price) {
 		
 	}
 	
 	public static void editItem(String item_id, String item_name, String item_category,
-			String item_size, String item_price) {
+			String item_size, BigDecimal item_price) {
 		
 	}
 	
@@ -47,7 +49,7 @@ public class Item {
 	}
 	
 	public static void checkItemValidation(String item_name, String item_category, 
-			String item_size, String item_price) {
+			String item_size, BigDecimal item_price) {
 		
 	}
 
@@ -55,7 +57,7 @@ public class Item {
 		
 	}
 	
-	public static void offerPrice(String item_id, String item_price) {
+	public static void offerPrice(String item_id, BigDecimal item_price) {
 		
 	}
 	
@@ -115,12 +117,12 @@ public class Item {
 	}
 
 
-	public String getItem_price() {
+	public BigDecimal getItem_price() {
 		return item_price;
 	}
 
 
-	public void setItem_price(String item_price) {
+	public void setItem_price(BigDecimal item_price) {
 		this.item_price = item_price;
 	}
 
