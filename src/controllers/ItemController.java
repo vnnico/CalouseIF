@@ -20,19 +20,19 @@ public class ItemController {
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
 
-            while (resultSet.next()) {
-                Item item = new Item(
-                        resultSet.getString("item_id"),
-                        resultSet.getString("item_name"),
-                        resultSet.getString("item_size"),
-                        resultSet.getBigDecimal("item_price"),
-                        resultSet.getString("item_category"),
-                        resultSet.getString("item_status"),
-                        resultSet.getString("item_wishlist"),
-                        resultSet.getString("item_offer_status")
-                );
-                items.add(item);
-            }
+//            while (resultSet.next()) {
+//                Item item = new Item(
+//                        resultSet.getString("item_id"),
+//                        resultSet.getString("item_name"),
+//                        resultSet.getString("item_size"),
+//                        resultSet.getBigDecimal("item_price"),
+//                        resultSet.getString("item_category"),
+//                        resultSet.getString("item_status"),
+//                        resultSet.getString("item_wishlist"),
+//                        resultSet.getString("item_offer_status")
+//                );
+//                items.add(item);
+//            }
 
         } catch (SQLException e) {
             e.printStackTrace();

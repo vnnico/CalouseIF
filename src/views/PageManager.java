@@ -7,6 +7,7 @@ import views.Buyer.ViewPurchasePage;
 import views.Buyer.ViewWishlistPage;
 import views.Seller.OfferedItemPage;
 import views.Seller.SellerHomePage;
+import views.Admin.AdminHomePage;
 
 public class PageManager {
 
@@ -40,7 +41,7 @@ public class PageManager {
         LoginPage loginPage = new LoginPage(this);
         RegisterPage registerPage = new RegisterPage(this);
         
-        //AdminDashboardPage adminDashboard = new AdminDashboardPage(this);
+        AdminHomePage adminDashboard = new AdminHomePage(this);
         SellerHomePage sellerDashboard = new SellerHomePage(this);
         BuyerHomePage buyerDashboard = new BuyerHomePage(this);
         
@@ -51,7 +52,7 @@ public class PageManager {
         
         loginScene = loginPage.getScene();
         registerScene = registerPage.getScene();
-        //adminDashboardScene = adminDashboard.getScene();
+        adminDashboardScene = adminDashboard.getScene();
         sellerDashboardScene = sellerDashboard.getScene();
         buyerDashboardScene = buyerDashboard.getScene();
         viewWishlistScene = viewWishlistPage.getScene();
@@ -69,10 +70,10 @@ public class PageManager {
         primaryStage.setTitle("Register");
     }
 
-//    public void showAdminDashboard() {
-//        primaryStage.setScene(ad);
-//        primaryStage.setTitle("Admin Dashboard");
-//    }
+    public void showAdminDashboard() {
+        primaryStage.setScene(adminDashboardScene);
+        primaryStage.setTitle("Admin Dashboard");
+    }
 
     public void showSellerDashboard() {
         primaryStage.setScene(sellerDashboardScene);
@@ -128,7 +129,7 @@ public class PageManager {
 //        }
 //        return false; // Login gagal
     	System.out.println("SINI");
-    	showBuyerDashboard();
+    	showAdminDashboard();
     }
 
     // Metode untuk menangani registrasi

@@ -6,8 +6,6 @@ import views.PageManager;
 import views.RegisterPage;
 import views.Buyer.BuyerHomePage;
 import views.Seller.*;
-
-
 import views.Seller.*;
 
 public class Main extends Application {
