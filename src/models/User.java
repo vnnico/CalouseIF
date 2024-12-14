@@ -1,6 +1,12 @@
 package models;
 
-public class User {
+import java.util.*;
+
+import factories.UserFactory;
+import services.Response;
+import utils.GenerateID;
+
+public class User extends Model{
 	
 	private String user_id;
 	private String username;
@@ -8,6 +14,13 @@ public class User {
 	private String phone_number;
 	private String address;
 	private String role;
+	
+	private final String tablename = "users";
+	private final String primarykey = "User_id";
+	
+	public User () {
+		
+	}
 	
 	public User(String user_id, String username, String password, String phone_number, String address, String role) {
 		super();
@@ -18,6 +31,78 @@ public class User {
 		this.address = address;
 		this.role = role;
 	}
+	
+	public static Response<User> Login(String Username, String Password) {
+	    Response<User> res = new Response<>();
+	    
+	    try {
+	        User foundUser = UserFactory.createUser().where("Username", "=", Username).get(0);
+
+	        if (!foundUser.getPassword().equals(Password)) {
+	            res.setMessages("Error: Wrong Password!");
+	            res.setIsSuccess(false);
+	            res.setData(null);
+	            return res;
+	        }
+	        
+	        res.setMessages("Success: User Authenticated!");
+	        res.setIsSuccess(true);
+	        res.setData(foundUser);
+	        return res;
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        res.setMessages("Error: " + e.getMessage() + "!");
+	        res.setIsSuccess(false);
+	        res.setData(null);
+	        return res;
+	    }
+	}
+
+	public static Response<User> Register(String Username, String Password, String Phone_Number, String Address, String Role) {
+	    Response<User> res = new Response<>();
+	    
+	    try {
+	        User user = UserFactory.createUser(
+	            GenerateID.generateNewId(UserFactory.createUser().latest().getUser_id(), "US"),
+	            Username, Password, Phone_Number, Address, Role
+	        );
+
+	        user.insert();
+	        
+	        res.setMessages("Success: User Registered!");
+	        res.setIsSuccess(true);
+	        res.setData(user);
+	        return res;
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        res.setMessages("Error: " + e.getMessage() + "!");
+	        res.setIsSuccess(false);
+	        res.setData(null);
+	        return res;
+	    }
+	}
+
+	public static Response<User> CheckAccountValidation(String Username, String Password, String Phone_Number, String Address) {
+	    Response<User> res = new Response<>();
+	    try {
+	        User foundUser = UserFactory.createUser().where("Username", "=", Username).get(0);
+	        
+	        res.setMessages("Success: User Found!");
+	        res.setIsSuccess(true);
+	        res.setData(foundUser);
+	        return res;
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        res.setMessages("Error: " + e.getMessage() + "!");
+	        res.setIsSuccess(false);
+	        res.setData(null);
+	        return res;
+	    }
+	}
+
 	
 	public static void login(String username, String password) {
 		
@@ -82,7 +167,69 @@ public class User {
 	public void setRole(String role) {
 		this.role = role;
 	}
+
+	@Override
+	protected String getTablename() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected String getPrimarykey() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
+
+
+	public ArrayList<Product> products() {
+	    return this.hasMany(Product.class, "products", this.user_id, "Seller_id");
+	}
+
+	public ArrayList<Wishlist> wishlists() {
+	    return this.hasMany(Wishlist.class, "wishlists", this.user_id, "User_id");
+	}
+
+	public ArrayList<Transaction> transactions() {
+	    return this.hasMany(Transaction.class, "transactions", this.user_id, "User_id");
+	}
+
+	public ArrayList<Offer> offers() {
+	    return this.hasMany(Offer.class, "offers", this.user_id, "Buyer_id");
+	}
+
+	public ArrayList<User> all() {
+	    return super.all(User.class);
+	}
+
+	public ArrayList<User> where(String columnName, String operator, String key) {
+	    return super.where(User.class, columnName, operator, key);
+	}
+
+	public User update(String fromKey) {
+	    return super.update(User.class, fromKey);
+	}
+
+	public User insert() {
+	    return super.insert(User.class);
+	}
+
+	public User find(String fromKey) {
+	    return super.find(User.class, fromKey);
+	}
+
+	public User latest() {
+	    return super.latest(User.class);
+	}
+
+	public Boolean delete(String fromKey) {
+	    return super.delete(User.class, fromKey);
+	}
+
+	public ArrayList<User> whereIn(String columnName, ArrayList<String> listValues) {
+	    return super.whereIn(User.class, columnName, listValues);
+	}
+
 	
 	
 	
