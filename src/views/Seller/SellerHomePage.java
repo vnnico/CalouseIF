@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -13,9 +14,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import models.Item;
+import views.PageManager;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 public class SellerHomePage implements EventHandler<ActionEvent> {
 
@@ -34,9 +38,13 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
     
     private String temp_id;
     
+    private PageManager pageManager;
+    private Stage primaryStage;
 
 
-    public SellerHomePage() {
+    public SellerHomePage(PageManager pageManager) {
+    	this.pageManager = pageManager;
+    	this.primaryStage = pageManager.getPrimaryStage();
         initUI();
         initTable();
         initMenu();
@@ -109,6 +117,11 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
     private void initMenu() {
         menuBar.getMenus().add(menu);
         menu.getItems().add(menuItem);
+        
+        // event handler for menu
+        menuItem.setOnAction(event -> {
+        	pageManager.showOfferedItemPage();
+        });
     }
 
     private void setLayout() {
@@ -199,7 +212,14 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
 			String itemSize = itemSizeField.getText();
 			int itemPrice = priceSpinner.getValue();
 			
+			// editData()
 			//refreshTable();
+		} else if (event.getSource() == deleteButton) {
+			Alert deleteAlert = new Alert(AlertType.CONFIRMATION);
+			deleteAlert.setContentText("Are you sure delete this item?");
+			Optional<ButtonType> result =  deleteAlert.showAndWait();
+			
+			//if (result.get() == ButtonType.CANCEL) arg0.consume();
 		}
 		
 	}

@@ -2,6 +2,9 @@ package main;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import views.PageManager;
+import views.RegisterPage;
+import views.Buyer.BuyerHomePage;
 import views.Seller.*;
 
 import views.Seller.*;
@@ -11,11 +14,14 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
        
-        SellerHomePage sellerDashboard = new SellerHomePage();
-
-        primaryStage.setTitle("Seller Dashboard");
-        primaryStage.setScene(sellerDashboard.getScene());
-        primaryStage.show();
+    	 try {
+             PageManager pageManager = new PageManager(primaryStage);
+             pageManager.showLoginPage();
+             primaryStage.setTitle("CaLouseIF");
+             primaryStage.show();
+         } catch(Exception e) {
+             e.printStackTrace();
+         }
     }
 
     public static void main(String[] args) {
