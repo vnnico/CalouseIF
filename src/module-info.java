@@ -10,6 +10,8 @@ module CalouseIF {
 	requires javafx.graphics;
 	requires java.desktop;
 	requires javafx.base;
+	requires mysql.connector.java;
 
     exports main to javafx.graphics;
+
 }

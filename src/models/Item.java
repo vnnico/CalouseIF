@@ -2,18 +2,23 @@ package models;
 
 import java.math.BigDecimal;
 
+import services.Response;
+
 public class Item {
 
 	private String item_id;
 	private String item_name;
 	private String item_size;
-	private int item_price;
+	private BigDecimal item_price;
 	private String item_category;
 	private String item_status;
 	private String item_wishlist;
 	private String item_offer_status;
 	
-	public Item(String item_id, String item_name, String item_size, int item_price, String item_category,
+	private final String tableName = "items";
+	private final String primaryKey = "Item_id";
+	
+	public Item(String item_id, String item_name, String item_size, BigDecimal item_price, String item_category,
 			String item_status, String item_wishlist, String item_offer_status) {
 		super();
 		this.item_id = item_id;
@@ -25,6 +30,34 @@ public class Item {
 		this.item_wishlist = item_wishlist;
 		this.item_offer_status = item_offer_status;
 	}
+	
+	public static Response<Item> UploadItem(String Item_name, String Item_category, String Item_size, BigDecimal Item_price) {
+		Response<Item> res = new Response<ItemModel>();
+		
+		try {
+			res = ItemModel.CheckItemValidation(Item_name, Item_category, Item_size, Item_price);
+			
+			if(!res.getIsSuccess()) {
+				return res;				
+			}
+			
+			ItemModel item = ItemFactory.createItem(IdGeneratorHelper.generateNewId(ItemFactory.createItem().latest().getItem_id(), "IT"), 
+					Item_name, Item_size, Item_price, Item_category, "Pending", null);
+			
+			item.insert();
+			res.setMessages("Success: Item Uploaded!");
+			res.setIsSuccess(true);
+			res.setData(item);
+			return res;
+		} catch (Exception e) {
+	        e.printStackTrace();
+	        res.setMessages("Error: " + e.getMessage() + "!");
+	        res.setIsSuccess(false);
+	        res.setData(null);
+	        return res;
+	    }
+	}
+	
 	
 	
 	public static void uploadItem(String item_name, String item_size, int item_price) {
@@ -117,12 +150,12 @@ public class Item {
 	}
 
 
-	public int getItem_price() {
+	public BigDecimal getItem_price() {
 		return item_price;
 	}
 
 
-	public void setItem_price(int item_price) {
+	public void setItem_price(BigDecimal item_price) {
 		this.item_price = item_price;
 	}
 
