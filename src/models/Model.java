@@ -46,7 +46,7 @@ public abstract class Model {
 		return null;
 	}
 	
-	protected <ToModel> ArrayList<ToModel> hasMany(Class<ToModel> otherModel, String Totablename,String fromKey, String toKey){		
+	protected  <ToModel> ArrayList<ToModel> hasMany(Class<ToModel> otherModel, String Totablename,String fromKey, String toKey){		
 		try {
 			ArrayList<ToModel> listToModels = new ArrayList<ToModel>();
 			String query = "SELECT * FROM " + Totablename + " WHERE " + Totablename + "." + toKey + " = ?;";
