@@ -2,8 +2,9 @@ package main;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import views.SellerHomePage;
+import views.Seller.*;
 
+import views.Seller.*;
 
 public class Main extends Application {
 
