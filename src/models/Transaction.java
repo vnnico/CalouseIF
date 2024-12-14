@@ -2,6 +2,11 @@ package models;
 
 import java.util.*;
 
+import factories.TransactionFactory;
+import factories.WishlistFactory;
+import services.Response;
+import utils.GenerateID;
+
 public class Transaction extends Model{
 
 	private String user_id;
@@ -18,6 +23,52 @@ public class Transaction extends Model{
 		this.transaction_id = transaction_id;
 	}
 
+	public static Response<Transaction> PurchaseItem(String Buyer_id, String Product_id) {
+		Response<Transaction> res = new Response<Transaction>();
+	    
+	    try {
+	    	Transaction transaction = TransactionFactory.createTransaction(Buyer_id, Product_id, 
+	    			GenerateID.generateNewId(TransactionFactory.createTransaction().latest().getTransaction_id(), "TR"));
+	    	
+	    	transaction.insert();
+	        
+	    	ArrayList<Wishlist> wishlists = WishlistFactory.createWishlist().where("Product_id", "=", Product_id);
+	    	for (Wishlist wishlist : wishlists) {
+				Wishlist.RemoveWishlist(wishlist.getWishlist_id());
+			}
+	    	
+	        res.setMessages("Success: Item Purchased!");
+	        res.setIsSuccess(true);
+	        res.setData(transaction);
+	        return res;
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        res.setMessages("Error: " + e.getMessage() + "!");
+	        res.setIsSuccess(false);
+	        res.setData(null);
+	        return res;
+	    }
+	}
+	
+	public static Response<ArrayList<Transaction>> ViewHistory(String User_id){
+		Response<ArrayList<Transaction>> res = new Response<ArrayList<Transaction>>();
+		
+		try {
+			ArrayList<Transaction> listTransaction = TransactionFactory.createTransaction().where("User_id", "=", User_id);
+			
+			res.setMessages("Success: All Transaction History Retrieved!");
+			res.setIsSuccess(true);
+			res.setData(listTransaction);
+			return res;
+		} catch (Exception e) {
+	        e.printStackTrace();
+	        res.setMessages("Error: " + e.getMessage() + "!");
+	        res.setIsSuccess(false);
+	        res.setData(null);
+	        return res;
+	    }
+	}
 	
 	// GETTER & SETTER
 
