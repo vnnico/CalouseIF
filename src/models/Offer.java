@@ -15,6 +15,10 @@ public class Offer extends Model {
     private final String Tablename = "offers";
 	private final String Primarykey = "Offer_id";
 
+	public Offer() {
+		
+	}
+	
     public Offer(String offer_id, String product_id, String buyer_id, BigDecimal item_offer_price,
                  String item_offer_status, String reason) {
         super();

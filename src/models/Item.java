@@ -25,6 +25,10 @@ public class Item extends Model {
 	private final String primaryKey = "Item_id";
 	
 	
+	public Item() {
+		
+	}
+	
 	public Item(String item_id, String item_name, String item_size, BigDecimal item_price, String item_category,
 			String item_status, String reason) {
 		super();

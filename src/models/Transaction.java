@@ -16,6 +16,10 @@ public class Transaction extends Model{
 	private final String Tablename = "transactions";
 	private final String Primarykey = "Transaction_id";
 	
+	public Transaction() {
+		
+	}
+	
 	public Transaction(String user_id, String product_id, String transaction_id) {
 		super();
 		this.user_id = user_id;
