@@ -11,6 +11,9 @@ public class Offer extends Model {
     private BigDecimal item_offer_price;
     private String item_offer_status;
     private String reason;
+    
+    private final String Tablename = "offers";
+	private final String Primarykey = "Offer_id";
 
     public Offer(String offer_id, String product_id, String buyer_id, BigDecimal item_offer_price,
                  String item_offer_status, String reason) {
