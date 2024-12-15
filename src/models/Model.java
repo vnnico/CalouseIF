@@ -13,6 +13,10 @@ public abstract class Model {
 	
 	protected abstract String getTablename();
 	protected abstract String getPrimarykey();
+	
+	public Model() {
+		
+	}
 
 	protected <ToModel> ToModel hasOne(Class<ToModel> otherModel, String Totablename,String fromKey, String toKey){
 		try {

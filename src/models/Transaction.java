@@ -13,8 +13,8 @@ public class Transaction extends Model{
 	private String product_id;
 	private String transaction_id;
 	
-	private final String Tablename = "transactions";
-	private final String Primarykey = "Transaction_id";
+	private final String tableName = "transactions";
+	private final String primaryKey = "transaction_id";
 	
 	public Transaction() {
 		
@@ -101,11 +101,11 @@ public class Transaction extends Model{
 	}
 	
 	public String getTablename() {
-	    return Tablename;
+	    return tableName;
 	}
 
 	public String getPrimarykey() {
-	    return this.Primarykey;
+	    return primaryKey;
 	}
 
 	public Product product() {

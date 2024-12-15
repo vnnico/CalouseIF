@@ -8,8 +8,8 @@ public class Product extends Model {
 	private String item_id;
 	private String seller_id;
 	
-	private final String Tablename = "products";
-	private final String Primarykey = "Product_id";
+	private final String tableName = "products";
+	private final String primaryKey = "product_id";
 	
 	public Product() {
 		
@@ -17,9 +17,9 @@ public class Product extends Model {
 
 	public Product(String product_id, String item_id, String seller_id) {
 		super();
-		product_id = product_id;
-		item_id = item_id;
-		seller_id = seller_id;
+		this.product_id = product_id;
+		this.item_id = item_id;
+		this.seller_id = seller_id;
 	}
 
 	public String getProduct_id() {
@@ -47,11 +47,11 @@ public class Product extends Model {
 	}
 
 	public String getTablename() {
-		return Tablename;
+		return tableName;
 	}
 
 	public String getPrimarykey() {
-		return Primarykey;
+		return primaryKey;
 	}
 	
 	public User user() {

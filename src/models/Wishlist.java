@@ -13,7 +13,7 @@ public class Wishlist extends Model {
 	private String user_id;
 	
 	private final String tableName = "wishlists";
-	private final String primaryKey = "Wishlist_id";
+	private final String primaryKey = "wishlist_id";
 	
 	public Wishlist() {
 		// TODO Auto-generated constructor stub

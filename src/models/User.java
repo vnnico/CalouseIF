@@ -15,8 +15,8 @@ public class User extends Model{
 	private String address;
 	private String role;
 	
-	private final String tablename = "users";
-	private final String primarykey = "User_id";
+	private final String tableName = "users";
+	private final String primaryKey = "user_id";
 	
 	public User () {
 		
@@ -33,30 +33,37 @@ public class User extends Model{
 	}
 	
 	public static Response<User> Login(String Username, String Password) {
-	    Response<User> res = new Response<>();
-	    
-	    try {
-	        User foundUser = UserFactory.createUser().where("Username", "=", Username).get(0);
-
-	        if (!foundUser.getPassword().equals(Password)) {
-	            res.setMessages("Error: Wrong Password!");
-	            res.setIsSuccess(false);
-	            res.setData(null);
-	            return res;
-	        }
-	        
-	        res.setMessages("Success: User Authenticated!");
-	        res.setIsSuccess(true);
-	        res.setData(foundUser);
-	        return res;
-	        
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        res.setMessages("Error: " + e.getMessage() + "!");
-	        res.setIsSuccess(false);
-	        res.setData(null);
-	        return res;
-	    }
+		   Response<User> res = new Response<User>();
+		    
+		    try {
+		    	ArrayList<User> users = UserFactory.createUser().where("Username", "=", Username);
+		        if(users.isEmpty()) {
+		        	res.setMessages("Error: User Not Found!");
+		            res.setIsSuccess(false);
+		            res.setData(null);
+		            return res;
+		        }
+		    	
+		    	User foundUser = users.get(0);
+		        if (!foundUser.getPassword().equals(Password)) {
+		            res.setMessages("Error: Wrong Password!");
+		            res.setIsSuccess(false);
+		            res.setData(null);
+		            return res;
+		        }
+		        
+		        res.setMessages("Success: User Authenticated!");
+		        res.setIsSuccess(true);
+		        res.setData(foundUser);
+		        return res;
+		        
+		    }  catch (Exception e) {
+		        e.printStackTrace();
+		        res.setMessages("Error: " + e.getMessage() + "!");
+		        res.setIsSuccess(false);
+		        res.setData(null);
+		        return res;
+		    }
 	}
 
 	public static Response<User> Register(String Username, String Password, String Phone_Number, String Address, String Role) {
@@ -85,14 +92,20 @@ public class User extends Model{
 	}
 
 	public static Response<User> CheckAccountValidation(String Username, String Password, String Phone_Number, String Address) {
-	    Response<User> res = new Response<>();
+		Response<User> res = new Response<User>();
 	    try {
-	        User foundUser = UserFactory.createUser().where("Username", "=", Username).get(0);
-	        
-	        res.setMessages("Success: User Found!");
-	        res.setIsSuccess(true);
-	        res.setData(foundUser);
-	        return res;
+	    	ArrayList<User> users = UserFactory.createUser().where("Username", "=", Username);
+	    	if(users.isEmpty()) {
+	    		res.setMessages("Error: User Not Found!");
+	    		res.setIsSuccess(false);
+	    		res.setData(null);
+	    		return res;
+	    	}
+	    	
+	    	res.setMessages("Success: User Found!");
+	    	res.setIsSuccess(true);
+	    	res.setData(users.get(0));
+	    	return res;
 	        
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -103,20 +116,7 @@ public class User extends Model{
 	    }
 	}
 
-	
-	public static void login(String username, String password) {
-		
-	}
-	
-	public static void register(String username, String password, String phone_number, 
-			String address) {
-		
-	}
-	
-	public static void checkAccountValidation(String username, String password,
-			String phone_number, String address) {
-		
-	}
+
 
 	// GETTER & SETTER
 	
@@ -171,13 +171,13 @@ public class User extends Model{
 	@Override
 	protected String getTablename() {
 		// TODO Auto-generated method stub
-		return null;
+		return tableName;
 	}
 
 	@Override
 	protected String getPrimarykey() {
 		// TODO Auto-generated method stub
-		return null;
+		return primaryKey;
 	}
 	
 

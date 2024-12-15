@@ -12,8 +12,8 @@ public class Offer extends Model {
     private String item_offer_status;
     private String reason;
     
-    private final String Tablename = "offers";
-	private final String Primarykey = "Offer_id";
+    private final String tableName = "offers";
+	private final String primaryKey = "offer_id";
 
 	public Offer() {
 		
@@ -81,13 +81,13 @@ public class Offer extends Model {
     @Override
     protected String getTablename() {
         // TODO: Update this method to return the correct table name
-        return "offers";
+        return tableName;
     }
 
     @Override
     protected String getPrimarykey() {
         // TODO: Update this method to return the correct primary key
-        return "offer_id";
+        return primaryKey;
     }
 
     public Product product() {

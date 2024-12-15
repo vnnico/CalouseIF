@@ -22,7 +22,7 @@ public class Item extends Model {
 	
 	
 	private final String tableName = "items";
-	private final String primaryKey = "Item_id";
+	private final String primaryKey = "item_id";
 	
 	
 	public Item() {
@@ -181,6 +181,25 @@ public class Item extends Model {
 	    }
 	}
 	
+	public static Response<ArrayList<Product>> ViewSellerItem(String Seller_id){
+		Response<ArrayList<Product>> res = new Response<ArrayList<Product>>();
+		
+		try {
+			ArrayList<Product> listProduct = ProductFactory.createProduct().where("Seller_id", "=", Seller_id);
+			
+			res.setMessages("Success: Retrived All Seller Items!");
+			res.setIsSuccess(true);
+			res.setData(listProduct);
+			return res;
+		} catch (Exception e) {
+	        e.printStackTrace();
+	        res.setMessages("Error: " + e.getMessage() + "!");
+	        res.setIsSuccess(false);
+	        res.setData(null);
+	        return res;
+	    }
+	}
+	
 	public static Response<Offer> CheckItemValidation(String Product_id, BigDecimal Item_price) {
 	    Response<Offer> res = new Response<>();
 	    Product product = ProductFactory.createProduct().find(Product_id);
@@ -262,6 +281,63 @@ public class Item extends Model {
 	    res.setIsSuccess(true);
 	    res.setData(null);
 	    return res;
+	}
+	
+	public static Response<Item> CheckItemValidation(String Item_id, String Item_name, String Item_category, String Item_size, BigDecimal Item_price) {
+		Response<Item> res = new Response<Item>();
+		Item item = ItemFactory.createItem().find(Item_id);
+		
+		if(item == null) {
+			res.setMessages("Error: Item Not Found!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}else if(Item_name.isEmpty()) {
+			res.setMessages("Error: Item Name Cannot Be Empty!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}else if(Item_name.length() < 3) {
+			res.setMessages("Error: Item Name Must At Least Be 3 Character Long!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}else if(Item_category.isEmpty()) {
+			res.setMessages("Error: Item Category Cannot Be Empty!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}else if(Item_category.length() < 3) {
+			res.setMessages("Error: Item Category Must At Least Be 3 Character Long!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}else if(Item_size.isEmpty()) {
+			res.setMessages("Error: Item Size Cannot Be Empty!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}else if(Item_price == null) {
+			res.setMessages("Error: Item Price Cannot Be Empty!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}else if(Item_price.compareTo(BigDecimal.ZERO) <= 0) {
+			res.setMessages("Error: Item Price Cannot Be 0!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}else if (Item_price instanceof BigDecimal) {
+			res.setMessages("Error: Item Price Must Be In Number");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}
+		
+		res.setMessages("Success: Item Validated!");
+		res.setIsSuccess(true);
+		res.setData(item);
+		return res;
 	}
 
 	public static Response<ArrayList<Product>> ViewRequestItem() {
@@ -370,8 +446,8 @@ public class Item extends Model {
 	    }
 	}
 
-	public static Response<Offer> DeclineOffer(String Offer_id) {
-	    Response<Offer> res = new Response<>();
+	public static Response<Offer> DeclineOffer(String Offer_id, String Reason) {
+	    Response<Offer> res = new Response<Offer>();
 
 	    try {
 	        Offer offer = OfferFactory.createOffer().find(Offer_id);
@@ -384,6 +460,7 @@ public class Item extends Model {
 	        }
 
 	        offer.setItem_offer_status("Declined");
+	        offer.setReason(Reason);
 	        offer.update(Offer_id);
 
 	        res.setMessages("Success: Offer Declined!");
@@ -428,8 +505,8 @@ public class Item extends Model {
 	    }
 	}
 
-	public static Response<Item> DeclineItem(String Item_id) {
-	    Response<Item> res = new Response<>();
+	public static Response<Item> DeclineItem(String Item_id, String Reason) {
+	    Response<Item> res = new Response<Item>();
 
 	    try {
 	        Item item = ItemFactory.createItem().find(Item_id);
@@ -442,6 +519,7 @@ public class Item extends Model {
 	        }
 
 	        item.setItem_status("Declined");
+	        item.setReason(Reason);
 	        item.update(Item_id);
 
 	        res.setMessages("Success: Item Declined!");
@@ -457,8 +535,8 @@ public class Item extends Model {
 	    }
 	}
 
-	public static Response<ArrayList<Product>> ViewAcceptedItem(String Item_id) {
-	    Response<ArrayList<Product>> res = new Response<>();
+	public static Response<ArrayList<Product>> ViewAcceptedItem() {
+	    Response<ArrayList<Product>> res = new Response<ArrayList<Product>>();
 
 	    try {
 	        ArrayList<Product> listProduct = ProductFactory.createProduct().all();
@@ -573,13 +651,13 @@ public class Item extends Model {
 	@Override
 	protected String getTablename() {
 		// TODO Auto-generated method stub
-		return null;
+		return tableName;
 	}
 
 	@Override
 	protected String getPrimarykey() {
 		// TODO Auto-generated method stub
-		return null;
+		return primaryKey;
 	}
 	
 	public ArrayList<Product> product() {
