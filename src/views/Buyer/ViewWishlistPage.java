@@ -49,7 +49,6 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
         title.setStyle("-fx-font-size:20px;");
         header.getChildren().add(title);
 
-        // Menu
         MenuBar menuBar = new MenuBar();
         Menu menu = new Menu("Menu");
         MenuItem homepageMenuItem = new MenuItem("Homepage");
@@ -98,7 +97,7 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
             return new ReadOnlyObjectWrapper<>(price);
         });
 
-
+     
         TableColumn<Wishlist, Void> actionColumn = new TableColumn<>("Action");
         actionColumn.setCellFactory(param -> new TableCell<>() {
             private final Button removeButton = new Button("Remove");
@@ -120,7 +119,14 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
                 }
             }
         });
-
+        
+        
+        idColumn.setMinWidth(100);
+        itemNameColumn.setMinWidth(150);
+        categoryColumn.setMinWidth(150);
+        sizeColumn.setMinWidth(100);
+        priceColumn.setMinWidth(100);
+        
         wishlistTable.getColumns().addAll(idColumn, itemNameColumn, categoryColumn, sizeColumn, priceColumn, actionColumn);
 
         ScrollPane scrollPane = new ScrollPane(wishlistTable);
@@ -132,7 +138,7 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
     }
 
     private void setLayout() {
-        // Layout done in initUI
+        
     }
 
     private void loadWishlist() {

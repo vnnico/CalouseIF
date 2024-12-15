@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ItemController {
 
-	public static Response<Item> UploadItem(String Item_name, String Item_category, String Item_size, String Item_price) {
+	public static Response<Item> UploadItem(String Seller_id, String Item_name, String Item_category, String Item_size, String Item_price) {
 		Response<Item> res = new Response<Item>();
 		
 		if(Item_name.isEmpty()) {
@@ -47,21 +47,22 @@ public class ItemController {
 			return res;
 		}
 		
-		try {
-			if(Integer.parseInt(Item_price) == 0) {
-				res.setMessages("Item price cannot be 0!");
-				res.setIsSuccess(false);
-				res.setData(null);
-				return res;
-			} 
-			
-		} catch (NumberFormatException e) {
-			res.setMessages("Item price must be in number!");
-			res.setIsSuccess(false);
-			res.setData(null);
-			return res;
-		}
-		
+//		try {
+//			if(new BigDecimal(Item_price).compareTo(BigDecimal.ZERO) == 0) {
+//				res.setMessages("Item price cannot be 0!");
+//				res.setIsSuccess(false);
+//				res.setData(null);
+//				return res;
+//			} 
+//			
+//		} catch (Exception e) {
+//		
+//			res.setMessages("Item price must be in number!");
+//			res.setIsSuccess(false);
+//			res.setData(null);
+//			return res;
+//		}
+//		
 		return Item.UploadItem(Item_name, Item_category, Item_size, new BigDecimal(Item_price));
 	}
 	
@@ -101,14 +102,14 @@ public class ItemController {
 		}
 		
 		try {
-			if(Integer.parseInt(Item_price) == 0) {
+			if(new BigDecimal(Item_price).compareTo(BigDecimal.ZERO) == 0) {
 				res.setMessages("Item price cannot be 0!");
 				res.setIsSuccess(false);
 				res.setData(null);
 				return res;
 			} 
 			
-		} catch (NumberFormatException e) {
+		} catch (Exception e) {
 			res.setMessages("Item price must be in number!");
 			res.setIsSuccess(false);
 			res.setData(null);
@@ -142,8 +143,20 @@ public class ItemController {
 		return item;
 	}
 	
-	public static Response<ArrayList<Product>> ViewRequestItem(String Item_id, String Item_status){
-		return Item.ViewRequestItem();
+	public static Response<ArrayList<Item>> ViewRequestItem(String Item_status){
+		Response<ArrayList<Product>> res = Item.ViewRequestItem();
+		ArrayList<Product> data = res.getData();
+		ArrayList<Item> item = new ArrayList<Item>();
+		
+		for (Product product : data) {
+			item.add(product.item());
+		}
+		
+		Response<ArrayList<Item>> resResult = new Response<ArrayList<Item>>();
+		resResult.setMessages(res.getMessages());
+		resResult.setIsSuccess(res.getIsSuccess());
+		resResult.setData(item);
+		return resResult;
 	}
 	
 	public static Response<Offer> OfferPrice(String Item_id, String Buyer_id, String Item_price) {

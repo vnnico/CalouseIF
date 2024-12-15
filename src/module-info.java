@@ -11,6 +11,9 @@ module CalouseIF {
 	requires java.desktop;
 	requires javafx.base;
 	requires mysql.connector.java;
+	
+	opens models to javafx.base;
+	exports models;
 
     exports main to javafx.graphics;
 

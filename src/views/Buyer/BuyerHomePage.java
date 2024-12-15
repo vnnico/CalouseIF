@@ -37,7 +37,7 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 
 	    private Label header;
 	    private TextField searchField;
-	    private Button searchButton;
+	    private Button searchButton, clearButton;
 
 	    private MenuBar menuBar;
 	    private Menu menu;
@@ -56,8 +56,8 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	    private void initUI() {
 	        borderPane = new BorderPane();
 
-	        header = new Label("BUYER DASHBOARD");
-	        header.setStyle("-fx-font-size: 24px; -fx-padding: 10px;");
+	        header = new Label("Buyer Dashboard");
+	        header.setStyle("-fx-font-size: 20px; ");
 
 	        menuBar = new MenuBar();
 	        menu = new Menu("Menu");
@@ -69,8 +69,11 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	        searchField.setPrefWidth(400);
 	        searchButton = new Button("Search");
 	        searchButton.setOnAction(e -> handleSearch());
+	        
+	        clearButton = new Button("Clear"); 
+	        clearButton.setOnAction(e -> handleClear()); 
 
-	        HBox searchBar = new HBox(10, searchField, searchButton);
+	        HBox searchBar = new HBox(10, searchField, searchButton, clearButton);
 	        searchBar.setAlignment(Pos.CENTER_LEFT);
 	        searchBar.setPadding(new Insets(10));
 
@@ -88,6 +91,15 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	        tableView = new TableView<>();
 	        tableView.setPrefWidth(980);
 	        tableView.setPlaceholder(new Label("No items available"));
+	        //tableView.setAutoCreateColumns(false);
+
+	        
+	        TableColumn<Product, String> idColumn = new TableColumn<>("Item ID");
+	        idColumn.setCellValueFactory(param -> {
+	            String id = param.getValue().item().getItem_id(); 
+	            return new ReadOnlyObjectWrapper<>(id); 
+	        });
+	        
 
 	        TableColumn<Product, String> nameColumn = new TableColumn<>("Item Name");
 	        nameColumn.setCellValueFactory(param -> {
@@ -113,9 +125,10 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	            return new ReadOnlyObjectWrapper<>(price);
 	        });
 
-
+	        
+	     
+	        
 	        TableColumn<Product, Void> actionColumn = new TableColumn<>("Actions");
-	        actionColumn.setMinWidth(250);
 	        actionColumn.setCellFactory(param -> new TableCell<>() {
 	            private final Button purchaseButton = new Button("Purchase");
 	            private final Button offerButton = new Button("Offer Price");
@@ -151,8 +164,16 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	                }
 	            }
 	        });
-
-	        tableView.getColumns().addAll(nameColumn, categoryColumn, sizeColumn, priceColumn, actionColumn);
+	        
+	        // Set Width
+	        idColumn.setMinWidth(100);
+	        nameColumn.setMinWidth(150);
+	        categoryColumn.setMinWidth(150);
+	        sizeColumn.setMinWidth(100);
+	        priceColumn.setMinWidth(100);
+	        actionColumn.setMinWidth(300);
+	        
+	        tableView.getColumns().addAll(idColumn,nameColumn, categoryColumn, sizeColumn, priceColumn, actionColumn);
 	        borderPane.setCenter(tableView);
 	    }
 
@@ -189,13 +210,20 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 
 	        Response<ArrayList<Product>> res = ItemController.BrowseItem(query);
 	        if (res.getIsSuccess()) {
+	        	
 	            tableView.setItems(javafx.collections.FXCollections.observableArrayList(res.getData()));
 	            if (res.getData().isEmpty()) {
+	            	
 	                showAlert(AlertType.INFORMATION, "Search Results", "No items found for: " + query);
 	            }
 	        } else {
 	            showAlert(AlertType.ERROR, "Search Failed", res.getMessages());
 	        }
+	    }
+
+	    private void handleClear() {
+	        searchField.clear(); 
+	        loadAllItems(); 
 	    }
 
 	    private void handlePurchase(Product product) {
@@ -207,14 +235,16 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 
 	        Optional<ButtonType> result = confirmationAlert.showAndWait();
 	        if (result.isPresent() && result.get() == ButtonType.OK) {
+	        	
 	            String userId = pageManager.getLoggedInUser().getUser_id();
+	            
 	            Response<models.Transaction> res;
 			
 				res = TransactionController.PurchaseItem(userId, product.getProduct_id());
 			
 	            if (res.getIsSuccess()) {
 	                showAlert(AlertType.INFORMATION, "Purchase Successful", "You have successfully purchased: " + item.getItem_name());
-	                // You might refresh the table or do other actions
+	                
 	            } else {
 	                showAlert(AlertType.ERROR, "Purchase Failed", res.getMessages());
 	            }
@@ -222,7 +252,7 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	    }
 
 	    private void handleOfferPrice(Product product) {
-	        // Show a dialog to input offer price
+	      
 	        Dialog<String> dialog = new Dialog<>();
 	        dialog.setTitle("Offer Price");
 	        dialog.setHeaderText("Enter your offer price for " + product.item().getItem_name());
@@ -233,8 +263,10 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	        TextField offerPriceField = new TextField();
 	        offerPriceField.setPromptText("Offer Price");
 	        
+	        
 	        VBox vbox = new VBox(10, new Label("Offer Price:"), offerPriceField);
 	        vbox.setPadding(new Insets(10));
+	        
 	        dialog.getDialogPane().setContent(vbox);
 
 	        dialog.setResultConverter(dialogButton -> {
@@ -251,6 +283,8 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	       
 	            String buyerId = pageManager.getLoggedInUser().getUser_id();
 	            Response<Offer> res = ItemController.OfferPrice(product.getProduct_id(), buyerId, offerValue);
+	            
+	            
 	            if (res.getIsSuccess()) {
 	                showAlert(AlertType.INFORMATION, "Offer Submitted", "Your offer has been submitted successfully.");
 	            } else {
@@ -260,6 +294,7 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	    }
 
 	    private void handleAddToWishlist(Product product) {
+	    	
 	        Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
 	        confirmationAlert.setTitle("Add to Wishlist");
 	        confirmationAlert.setHeaderText("Confirm Wishlist Addition");
@@ -279,7 +314,7 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 
 	    @Override
 	    public void handle(ActionEvent event) {
-	        // Not used directly since we attach event handlers inline
+
 	    }
 
 	    public Scene getScene() {

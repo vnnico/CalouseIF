@@ -89,6 +89,12 @@ public class ViewPurchasePage implements EventHandler<ActionEvent> {
             return new ReadOnlyObjectWrapper<>(price);
         });
         
+        idColumn.setMinWidth(100);
+        itemNameColumn.setMinWidth(150);
+        categoryColumn.setMinWidth(150);
+        sizeColumn.setMinWidth(100);
+        priceColumn.setMinWidth(100);
+        
         transactionTable.getColumns().addAll(idColumn, itemNameColumn, categoryColumn, sizeColumn, priceColumn);
 
         ScrollPane scrollPane = new ScrollPane(transactionTable);
