@@ -211,17 +211,13 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         scene = new Scene(borderPane, 1000, 600);
     }
 
-    /**
-     * Set event handlers for buttons and other interactive components.
-     */
+  
     private void setEventHandler() {
         submitButton.setOnAction(this);
-        // Edit and Delete buttons are handled within the table's action column
+       
     }
 
-    /**
-     * Load the seller's items from the backend and populate the table.
-     */
+   
     private void loadSellerItems() {
         User currentUser = pageManager.getLoggedInUser();
         if (currentUser == null) {
@@ -236,10 +232,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         table.setItems(FXCollections.observableArrayList(items));
         
     }
-
-    /**
-     * Handle the action when the submit button is clicked to upload a new item.
-     */
+  
     @Override
     public void handle(ActionEvent event) {
         if (event.getSource() == submitButton) {
@@ -252,7 +245,6 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
             String sellerId = currentUser.getUser_id();
 
 
-            // Call controller to upload item with individual parameters
             Response<Item> res = ItemController.UploadItem(sellerId,itemName, itemCategory, itemSize, itemPrice);
             if (res.getIsSuccess()) {
                 showAlert(AlertType.INFORMATION, "Success", "Item added successfully.");
@@ -269,19 +261,17 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         }
     }
 
-    /**
-     * Handle the action when the edit button is clicked to modify an existing item.
-     */
+ 
     private void handleEdit(Item item) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit Item");
         dialog.setHeaderText("Edit Item Details");
 
-        // Set the button types
+  
         ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 
-        // Create the form fields
+    
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -307,39 +297,17 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
 
         dialog.getDialogPane().setContent(grid);
 
-        // Request focus on the first field by default
         Platform.runLater(() -> itemNameEdit.requestFocus());
 
-        // Enable/Disable Save button based on input validation
-        Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
-        saveButton.setDisable(true);
-
-        // Convert the result to the edited values when the Save button is clicked
+     
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
-                String editedName = itemNameEdit.getText().trim();
-                String editedCategory = itemCategoryEdit.getText().trim();
-                String editedSize = itemSizeEdit.getText().trim();
-                String editedPriceStr = priceEditField.getText().trim();
-
-                // Validate price
-                BigDecimal editedPrice;
-                try {
-                    editedPrice = new BigDecimal(editedPriceStr);
-                    if (editedPrice.compareTo(BigDecimal.ZERO) <= 0) {
-                        showAlert(AlertType.WARNING, "Input Validation", "Item price must be greater than zero.");
-                        return null;
-                    }
-                } catch (NumberFormatException e) {
-                    showAlert(AlertType.ERROR, "Invalid Input", "Please enter a valid number for the item price.");
-                    return null;
-                }
-
-                // Return the save action with edited details
-                return new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+                return saveButtonType;
             }
             return null;
         });
+
+
 
         Optional<ButtonType> result = dialog.showAndWait();
 
@@ -349,8 +317,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
             String editedSize = itemSizeEdit.getText().trim();
             String editedPrice= priceEditField.getText().trim();
 
-          
-            // Call controller to update item with individual parameters
+
             Response<Item> res = ItemController.EditItem(item.getItem_id(), editedName, editedCategory, editedSize, editedPrice);
             if (res.getIsSuccess()) {
                 showAlert(AlertType.INFORMATION, "Success", "Item updated successfully.");
@@ -361,9 +328,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         }
     }
 
-    /**
-     * Handle the action when the delete button is clicked to remove an existing item.
-     */
+  
     private void handleDelete(Item item) {
         Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
         confirmationAlert.setTitle("Confirm Deletion");
@@ -382,35 +347,9 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         }
     }
 
-    /**
-     * Validate the edit form fields to enable or disable the Save button.
-     */
-//    private void validateEditForm(TextField nameField, TextField categoryField, TextField sizeField, TextField priceField, Node saveButton) {
-//        String name = nameField.getText().trim();
-//        String category = categoryField.getText().trim();
-//        String size = sizeField.getText().trim();
-//        String priceStr = priceField.getText().trim();
-//
-//        boolean disable = name.isEmpty() || category.isEmpty() || size.isEmpty() || priceStr.isEmpty();
-//
-//        // Additionally, check if the price is a valid number
-//        if (!priceStr.isEmpty()) {
-//            try {
-//                BigDecimal price = new BigDecimal(priceStr);
-//                if (price.compareTo(BigDecimal.ZERO) <= 0) {
-//                    disable = true;
-//                }
-//            } catch (NumberFormatException e) {
-//                disable = true;
-//            }
-//        }
-//
-//        saveButton.setDisable(disable);
-//    }
 
-    /**
-     * Display an alert dialog to the user.
-     */
+
+    
     private void showAlert(AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -419,9 +358,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         alert.showAndWait();
     }
 
-    /**
-     * Getter for the scene.
-     */
+  
     public Scene getScene() {
         return scene;
     }

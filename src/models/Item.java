@@ -41,7 +41,7 @@ public class Item extends Model {
 		this.reason = reason;
 	}
 	
-	public static Response<Item> UploadItem(String Item_name, String Item_category, String Item_size, BigDecimal Item_price) {
+	public static Response<Item> UploadItem(String Seller_id,String Item_name, String Item_category, String Item_size, BigDecimal Item_price) {
 		Response<Item> res = new Response<Item>();
 		
 		try {
@@ -55,6 +55,13 @@ public class Item extends Model {
 					Item_name, Item_size, Item_price, Item_category, "Pending", null);
 			
 			item.insert();
+			
+			Product product = ProductFactory.createProduct(GenerateID.generateNewId(ProductFactory.createProduct().latest().getProduct_id(), "PR"), item.getItem_id(), Seller_id);
+			product.insert();
+		
+		
+			
+		
 			res.setMessages("Success: Item Uploaded!");
 			res.setIsSuccess(true);
 			res.setData(item);
@@ -84,7 +91,13 @@ public class Item extends Model {
 			item.setItem_size(Item_size);
 			item.setItem_price(Item_price);
 			
+		
 			item.update(item.getItem_id());
+			
+			System.out.println(item.getItem_name());
+			System.out.println(item.getItem_category());
+			System.out.println(item.getItem_size());
+			System.out.println(item.getItem_price());
 			res.setMessages("Success: Item Updated!");
 			res.setIsSuccess(true);
 			res.setData(item);
@@ -219,11 +232,6 @@ public class Item extends Model {
 	        res.setIsSuccess(false);
 	        res.setData(null);
 	        return res;
-	    } else if (Item_price instanceof BigDecimal) {
-	        res.setMessages("Error: Item Price Must Be In Number");
-	        res.setIsSuccess(false);
-	        res.setData(null);
-	        return res;
 	    }
 
 	    res.setMessages("Success: Item Validated!");
@@ -267,11 +275,6 @@ public class Item extends Model {
 	        return res;
 	    } else if (Item_price.compareTo(BigDecimal.ZERO) <= 0) {
 	        res.setMessages("Error: Item Price Cannot Be 0!");
-	        res.setIsSuccess(false);
-	        res.setData(null);
-	        return res;
-	    } else if (Item_price instanceof BigDecimal) {
-	        res.setMessages("Error: Item Price Must Be In Number");
 	        res.setIsSuccess(false);
 	        res.setData(null);
 	        return res;
@@ -327,11 +330,6 @@ public class Item extends Model {
 			res.setIsSuccess(false);
 			res.setData(null);
 			return res;
-		}else if (Item_price instanceof BigDecimal) {
-			res.setMessages("Error: Item Price Must Be In Number");
-			res.setIsSuccess(false);
-			res.setData(null);
-			return res;
 		}
 		
 		res.setMessages("Success: Item Validated!");
@@ -369,7 +367,7 @@ public class Item extends Model {
 	}
 
 	public static Response<Offer> OfferPrice(String Product_id, String Buyer_id, BigDecimal Item_price) {
-	    Response<Offer> res = new Response<>();
+	    Response<Offer> res = new Response<Offer>();
 
 	    try {
 	        res = CheckItemValidation(Product_id, Item_price);
@@ -388,7 +386,7 @@ public class Item extends Model {
 
 	        if (buyerOffer == null) {
 	            buyerOffer = OfferFactory.createOffer(GenerateID.generateNewId(OfferFactory.createOffer().latest().getOffer_id(), "OF"),
-	                    Product_id, Buyer_id, Item_price, "Pending", null);
+	                    Product_id, Buyer_id, Item_price, "Offered", null);
 
 	            buyerOffer.insert();
 	        } else {

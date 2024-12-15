@@ -47,28 +47,29 @@ public class ItemController {
 			return res;
 		}
 		
-//		try {
-//			if(new BigDecimal(Item_price).compareTo(BigDecimal.ZERO) == 0) {
-//				res.setMessages("Item price cannot be 0!");
-//				res.setIsSuccess(false);
-//				res.setData(null);
-//				return res;
-//			} 
-//			
-//		} catch (Exception e) {
-//		
-//			res.setMessages("Item price must be in number!");
-//			res.setIsSuccess(false);
-//			res.setData(null);
-//			return res;
-//		}
-//		
-		return Item.UploadItem(Item_name, Item_category, Item_size, new BigDecimal(Item_price));
+		try {
+			 BigDecimal price = new BigDecimal(Item_price);
+			if(price.compareTo(BigDecimal.ZERO) <= 0) {
+				res.setMessages("Item price cannot be 0!");
+				res.setIsSuccess(false);
+				res.setData(null);
+				return res;
+			} 
+			
+		} catch (NumberFormatException e) {
+		
+			res.setMessages("Item price must be in number!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}
+		
+		return Item.UploadItem(Seller_id,Item_name, Item_category, Item_size, new BigDecimal(Item_price));
 	}
 	
 	public static Response<Item> EditItem(String Item_id, String Item_name, String Item_category, String Item_size, String Item_price) {
 		Response<Item> res = new Response<Item>();
-		
+
 		if(Item_name.isEmpty()) {
 			res.setMessages("Item name cannot be empty!");
 			res.setIsSuccess(false);
@@ -102,14 +103,16 @@ public class ItemController {
 		}
 		
 		try {
-			if(new BigDecimal(Item_price).compareTo(BigDecimal.ZERO) == 0) {
+			 BigDecimal price = new BigDecimal(Item_price);
+			if(price.compareTo(BigDecimal.ZERO) <= 0) {
 				res.setMessages("Item price cannot be 0!");
 				res.setIsSuccess(false);
 				res.setData(null);
 				return res;
 			} 
 			
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
+		
 			res.setMessages("Item price must be in number!");
 			res.setIsSuccess(false);
 			res.setData(null);
@@ -159,16 +162,39 @@ public class ItemController {
 		return resResult;
 	}
 	
-	public static Response<Offer> OfferPrice(String Item_id, String Buyer_id, String Item_price) {
-		return Item.OfferPrice(Item_id, Buyer_id, new BigDecimal(Item_price));
+	public static Response<Offer> OfferPrice(String Product_id, String Buyer_id, String Item_price) {
+		Response<Offer> res = new Response<Offer>();
+		try {
+			if(new BigDecimal(Item_price).compareTo(BigDecimal.ZERO) == 0) {
+				res.setMessages("Item price cannot be 0!");
+				res.setIsSuccess(false);
+				res.setData(null);
+				return res;
+			} 
+			
+		} catch (Exception e) {
+			res.setMessages("Item price must be in number!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}
+		return Item.OfferPrice(Product_id, Buyer_id, new BigDecimal(Item_price));
 	}
 	
 	public static Response<Offer> AcceptOffer(String Item_id) {
 		return Item.AcceptOffer(Item_id);
 	}
 	
-	public static Response<Offer> DeclineOffer(String Item_id, String Reason) {
-		return Item.DeclineOffer(Item_id, Reason);
+	public static Response<Offer> DeclineOffer(String Offer_id, String Reason) {
+		Response<Offer> res = new Response<Offer>();
+		if(Reason.isEmpty()) {
+			res.setMessages("Item price cannot be empty!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}
+		
+		return Item.DeclineOffer(Offer_id, Reason);
 	}
 	
 	public static Response<Item> ApproveItem(String Item_id) {
@@ -176,6 +202,14 @@ public class ItemController {
 	}
 	
 	public static Response<Item> DeclineItem(String Item_id, String Reason) {
+		Response<Item> res = new Response<Item>();
+		if(Reason.isEmpty()) {
+			res.setMessages("Item price cannot be empty!");
+			res.setIsSuccess(false);
+			res.setData(null);
+			return res;
+		}
+		
 		return Item.DeclineItem(Item_id, Reason);
 	}
 	

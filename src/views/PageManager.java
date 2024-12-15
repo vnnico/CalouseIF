@@ -47,7 +47,7 @@ public class PageManager {
     }
 
     public void showAdminDashboard() {
-    	System.out.println("Masuk nggak");
+    
         AdminHomePage adminDashboard = new AdminHomePage(this);
         Scene adminDashboardScene = adminDashboard.getScene();
         primaryStage.setScene(adminDashboardScene);
