@@ -1,5 +1,6 @@
 package views.Buyer;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,253 +16,316 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.Item;
+import models.Offer;
+import models.Product;
+import services.Response;
 import views.PageManager;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Optional;
+
+import controllers.ItemController;
+import controllers.TransactionController;
+import controllers.WishlistController;
 
 public class BuyerHomePage implements EventHandler<ActionEvent> {
 
-    private BorderPane borderPane;
-    private VBox headerContainer;
-    private TableView<Item> tableView;
+	 private BorderPane borderPane;
+	    private VBox headerContainer;
+	    private TableView<Product> tableView;
 
-    private Label header;
-    private TextField searchField;
-    private Button searchButton;
+	    private Label header;
+	    private TextField searchField;
+	    private Button searchButton, clearButton;
 
-    private MenuBar menuBar;
-    private Menu menu;
-    private MenuItem wishlistMenuItem, purchaseHistoryMenuItem;
+	    private MenuBar menuBar;
+	    private Menu menu;
+	    private MenuItem wishlistMenuItem, purchaseHistoryMenuItem;
 
-    private Scene scene;
-    private Stage primaryStage;
+	    private Scene scene;
+	    private PageManager pageManager;
 
-    private ViewPurchasePage viewPurchasePage;
-    private ViewWishlistPage viewWishlistPage;
+	    public BuyerHomePage(PageManager pageManager) {
+	        this.pageManager = pageManager;
+	        initUI();
+	        initMenu();
+	        setLayout();
+	        loadAllItems(); 	    }
 
-    // ObservableList untuk menyimpan data item
-    private ObservableList<Item> itemList;
-    
-    private PageManager pageManager;
-   
+	    private void initUI() {
+	        borderPane = new BorderPane();
 
-    public BuyerHomePage(PageManager pageManager) {
-    	this.pageManager = pageManager;
-        this.primaryStage = pageManager.getPrimaryStage();
+	        header = new Label("Buyer Dashboard");
+	        header.setStyle("-fx-font-size: 20px; ");
 
-        initUI();
-        initMenu();
-        setLayout();
-     
-    }
+	        menuBar = new MenuBar();
+	        menu = new Menu("Menu");
+	        wishlistMenuItem = new MenuItem("Wishlist");
+	        purchaseHistoryMenuItem = new MenuItem("Purchase History");
 
-    private void initUI() {
-        borderPane = new BorderPane();
+	        searchField = new TextField();
+	        searchField.setPromptText("Search items...");
+	        searchField.setPrefWidth(400);
+	        searchButton = new Button("Search");
+	        searchButton.setOnAction(e -> handleSearch());
+	        
+	        clearButton = new Button("Clear"); 
+	        clearButton.setOnAction(e -> handleClear()); 
 
-        // Header
-        header = new Label("BUYER DASHBOARD");
-        header.setStyle("-fx-font-size: 24px; -fx-padding: 10px;");
+	        HBox searchBar = new HBox(10, searchField, searchButton, clearButton);
+	        searchBar.setAlignment(Pos.CENTER_LEFT);
+	        searchBar.setPadding(new Insets(10));
 
-        // Menu
-        menuBar = new MenuBar();
-        menu = new Menu("Menu");
-        wishlistMenuItem = new MenuItem("Wishlist");
-        purchaseHistoryMenuItem = new MenuItem("Purchase History");
+	        headerContainer = new VBox(menuBar, header, searchBar);
+	        headerContainer.setSpacing(5);
 
-        // Search Bar
-        searchField = new TextField();
-        searchField.setPromptText("Search items...");
-        searchField.setPrefWidth(400);
-        searchButton = new Button("Search");
+	        borderPane.setTop(headerContainer);
 
-        HBox searchBar = new HBox(10, searchField, searchButton);
-        searchBar.setAlignment(Pos.CENTER_LEFT);
-        searchBar.setPadding(new Insets(10));
+	        initTable();
+	        
+	        scene = new Scene(borderPane, 1000, 600);
+	    }
 
-        // Combine Header and Search Bar
-        headerContainer = new VBox(menuBar, header, searchBar);
-        headerContainer.setSpacing(5);
+	    private void initTable() {
+	        tableView = new TableView<>();
+	        tableView.setPrefWidth(980);
+	        tableView.setPlaceholder(new Label("No items available"));
+	        //tableView.setAutoCreateColumns(false);
 
-        borderPane.setTop(headerContainer);
-    }
+	        
+	        TableColumn<Product, String> idColumn = new TableColumn<>("Item ID");
+	        idColumn.setCellValueFactory(param -> {
+	            String id = param.getValue().item().getItem_id(); 
+	            return new ReadOnlyObjectWrapper<>(id); 
+	        });
+	        
 
-    private void setLayout() {
-        // Inisialisasi TableView
-        tableView = new TableView<>();
-        tableView.setPrefWidth(980);
-        tableView.setPlaceholder(new Label("No items available"));
+	        TableColumn<Product, String> nameColumn = new TableColumn<>("Item Name");
+	        nameColumn.setCellValueFactory(param -> {
+	            String itemName = param.getValue().item().getItem_name(); 
+	            return new ReadOnlyObjectWrapper<>(itemName); 
+	        });
 
-        // Define columns
-        TableColumn<Item, String> idColumn = new TableColumn<>("ID");
-        idColumn.setMinWidth(50);
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+	        TableColumn<Product, String> categoryColumn = new TableColumn<>("Category");
+	        categoryColumn.setCellValueFactory(param -> {
+	            String category = param.getValue().item().getItem_category();
+	            return new ReadOnlyObjectWrapper<>(category);
+	        });
 
-        TableColumn<Item, String> nameColumn = new TableColumn<>("Item Name");
-        nameColumn.setMinWidth(200);
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+	        TableColumn<Product, String> sizeColumn = new TableColumn<>("Size");
+	        sizeColumn.setCellValueFactory(param -> {
+	            String size = param.getValue().item().getItem_size();
+	            return new ReadOnlyObjectWrapper<>(size);
+	        });
 
-        TableColumn<Item, String> categoryColumn = new TableColumn<>("Category");
-        categoryColumn.setMinWidth(150);
-        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+	        TableColumn<Product, BigDecimal> priceColumn = new TableColumn<>("Price");
+	        priceColumn.setCellValueFactory(param -> {
+	            BigDecimal price = param.getValue().item().getItem_price();
+	            return new ReadOnlyObjectWrapper<>(price);
+	        });
 
-        TableColumn<Item, String> sizeColumn = new TableColumn<>("Size");
-        sizeColumn.setMinWidth(100);
-        sizeColumn.setCellValueFactory(new PropertyValueFactory<>("size"));
+	        
+	     
+	        
+	        TableColumn<Product, Void> actionColumn = new TableColumn<>("Actions");
+	        actionColumn.setCellFactory(param -> new TableCell<>() {
+	            private final Button purchaseButton = new Button("Purchase");
+	            private final Button offerButton = new Button("Offer Price");
+	            private final Button wishlistButton = new Button("Add to Wishlist");
+	            private final HBox pane = new HBox(purchaseButton, offerButton, wishlistButton);
 
-        TableColumn<Item, Double> priceColumn = new TableColumn<>("Price");
-        priceColumn.setMinWidth(100);
-        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+	            {
+	                pane.setSpacing(10);
 
-        TableColumn<Item, Void> actionColumn = new TableColumn<>("Actions");
-        actionColumn.setMinWidth(200);
-        actionColumn.setCellFactory(param -> new TableCell<>() {
-            private final Button purchaseButton = new Button("Purchase");
-            private final Button addToWishlistButton = new Button("Add to Wishlist");
-            private final HBox pane = new HBox(purchaseButton, addToWishlistButton);
+	                purchaseButton.setOnAction(event -> {
+	                    Product product = getTableView().getItems().get(getIndex());
+	                    handlePurchase(product);
+	                });
 
-            {
-                pane.setSpacing(10);
-                purchaseButton.setOnAction(event -> {
-                    Item item = getTableView().getItems().get(getIndex());
-                    //handlePurchase(item.getName());
-                });
-                addToWishlistButton.setOnAction(event -> {
-                    Item item = getTableView().getItems().get(getIndex());
-                    //handleAddToWishlist(item.getName());
-                });
-            }
+	                offerButton.setOnAction(event -> {
+	                    Product product = getTableView().getItems().get(getIndex());
+	                    handleOfferPrice(product);
+	                });
 
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(pane);
-                }
-            }
-        });
+	                wishlistButton.setOnAction(event -> {
+	                    Product product = getTableView().getItems().get(getIndex());
+	                    handleAddToWishlist(product);
+	                });
+	            }
 
-        // Tambahkan kolom ke TableView
-        tableView.getColumns().addAll(idColumn, nameColumn, categoryColumn, sizeColumn, priceColumn, actionColumn);
+	            @Override
+	            protected void updateItem(Void item, boolean empty) {
+	                super.updateItem(item, empty);
+	                if (empty) {
+	                    setGraphic(null);
+	                } else {
+	                    setGraphic(pane);
+	                }
+	            }
+	        });
+	        
+	        // Set Width
+	        idColumn.setMinWidth(100);
+	        nameColumn.setMinWidth(150);
+	        categoryColumn.setMinWidth(150);
+	        sizeColumn.setMinWidth(100);
+	        priceColumn.setMinWidth(100);
+	        actionColumn.setMinWidth(300);
+	        
+	        tableView.getColumns().addAll(idColumn,nameColumn, categoryColumn, sizeColumn, priceColumn, actionColumn);
+	        borderPane.setCenter(tableView);
+	    }
 
-        // Inisialisasi data
-        itemList = FXCollections.observableArrayList();
-        populateItems(); // Method untuk mengisi data awal
+	    private void initMenu() {
+	        menu.getItems().addAll(wishlistMenuItem, purchaseHistoryMenuItem);
+	        menuBar.getMenus().add(menu);
 
-        tableView.setItems(itemList);
+	        wishlistMenuItem.setOnAction(event -> pageManager.showViewWishlist());
+	        purchaseHistoryMenuItem.setOnAction(event -> pageManager.showViewPurchaseHistory());
+	    }
 
-        // ScrollPane tidak diperlukan karena TableView sudah dapat discroll secara internal
-        borderPane.setCenter(tableView);
+	    private void setLayout() {
+	       
+	    }
 
-        scene = new Scene(borderPane, 1000, 600);
-    }
+	    private void loadAllItems() {
 
-    private void initMenu() {
-    
-        menu.getItems().addAll(wishlistMenuItem, purchaseHistoryMenuItem);
-        menuBar.getMenus().add(menu);
-        
-        wishlistMenuItem.setOnAction(event -> {
-        	pageManager.showViewWishlist();
-        });
-        
-        purchaseHistoryMenuItem.setOnAction(event -> {
-        	pageManager.showViewPurchaseHistory();
-        });
-        
-    }
+	        Response<ArrayList<Product>> res = ItemController.ViewItem();
+	        System.out.println(res.getData());
+	        if (res.getIsSuccess()) {
+            tableView.setItems(javafx.collections.FXCollections.observableArrayList(res.getData()));
+	        } else {
+	            showAlert(AlertType.ERROR, "Error", res.getMessages());
+	        }
+	    
+	    }
 
+	    private void handleSearch() {
+	        String query = searchField.getText().trim();
+	        if (query.isEmpty()) {
+	            loadAllItems();
+	            return;
+	        }
 
-    private void populateItems() {
-        // Contoh data, seharusnya diambil dari database atau sumber data lain
-        for (int i = 1; i <= 20; i++) {
-//            itemList.add(new Item(
-//                    String.valueOf(i),
-//                    "Item Name " + i,
-//                    "Category " + ((i % 5) + 1),
-//                    "Size " + ((i % 3) + 1),
-//                    10.0 * i
-//            ));
-        }
-    }
+	        Response<ArrayList<Product>> res = ItemController.BrowseItem(query);
+	        if (res.getIsSuccess()) {
+	        	
+	            tableView.setItems(javafx.collections.FXCollections.observableArrayList(res.getData()));
+	            if (res.getData().isEmpty()) {
+	            	
+	                showAlert(AlertType.INFORMATION, "Search Results", "No items found for: " + query);
+	            }
+	        } else {
+	            showAlert(AlertType.ERROR, "Search Failed", res.getMessages());
+	        }
+	    }
 
-    private void handleSearch() {
-//        String query = searchField.getText().toLowerCase();
-//        if (!query.isEmpty()) {
-//            // Filter itemList berdasarkan query
-//            ObservableList<Item> filteredList = FXCollections.observableArrayList();
-//            for (Item item : itemList) {
-////                if (item.getName().toLowerCase().contains(query) ||
-////                    item.getCategory().toLowerCase().contains(query)) {
-////                    filteredList.add(item);
-//                }
-//            }
-//            //tableView.setItems(filteredList);
-//
-//            if (filteredList.isEmpty()) {
-//                Alert alert = new Alert(AlertType.INFORMATION);
-//                alert.setTitle("Search Results");
-//                alert.setHeaderText(null);
-//                alert.setContentText("No items found for: " + query);
-//                alert.showAndWait();
-//            }
-//        } else {
-//            tableView.setItems(itemList); // Reset ke seluruh item
-//            Alert alert = new Alert(AlertType.WARNING);
-//            alert.setTitle("Search Warning");
-//            alert.setHeaderText(null);
-//            alert.setContentText("Search field is empty. Please enter a keyword.");
-//            alert.showAndWait();
-//        }
-    }
+	    private void handleClear() {
+	        searchField.clear(); 
+	        loadAllItems(); 
+	    }
 
-    public Scene getScene() {
-        return scene;
-    }
+	    private void handlePurchase(Product product) {
+	        Item item = product.item();
+	        Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
+	        confirmationAlert.setTitle("Confirmation");
+	        confirmationAlert.setHeaderText("Purchase Confirmation");
+	        confirmationAlert.setContentText("Are you sure you want to purchase " + item.getItem_name() + "?");
 
-    @Override
-    public void handle(ActionEvent event) {
-        // Tidak digunakan karena aksi sudah di-handle di TableCell
-    }
+	        Optional<ButtonType> result = confirmationAlert.showAndWait();
+	        if (result.isPresent() && result.get() == ButtonType.OK) {
+	        	
+	            String userId = pageManager.getLoggedInUser().getUser_id();
+	            
+	            Response<models.Transaction> res;
+			
+				res = TransactionController.PurchaseItem(userId, product.getProduct_id());
+			
+	            if (res.getIsSuccess()) {
+	                showAlert(AlertType.INFORMATION, "Purchase Successful", "You have successfully purchased: " + item.getItem_name());
+	                
+	            } else {
+	                showAlert(AlertType.ERROR, "Purchase Failed", res.getMessages());
+	            }
+	        }
+	    }
 
-    private void handlePurchase(String itemName) {
-        Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
-        confirmationAlert.setTitle("Confirmation");
-        confirmationAlert.setHeaderText("Purchase Confirmation");
-        confirmationAlert.setContentText("Are you sure you want to purchase " + itemName + "?");
+	    private void handleOfferPrice(Product product) {
+	      
+	        Dialog<String> dialog = new Dialog<>();
+	        dialog.setTitle("Offer Price");
+	        dialog.setHeaderText("Enter your offer price for " + product.item().getItem_name());
+	        
+	        ButtonType submitButtonType = new ButtonType("Submit", ButtonBar.ButtonData.OK_DONE);
+	        dialog.getDialogPane().getButtonTypes().addAll(submitButtonType, ButtonType.CANCEL);
 
-        Optional<ButtonType> result = confirmationAlert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            System.out.println("Purchase confirmed for: " + itemName);
-            // Tambahkan logika pembelian di sini
-            Alert successAlert = new Alert(AlertType.INFORMATION);
-            successAlert.setTitle("Purchase Successful");
-            successAlert.setHeaderText(null);
-            successAlert.setContentText("You have successfully purchased: " + itemName);
-            successAlert.showAndWait();
-        } else {
-            System.out.println("Purchase canceled for: " + itemName);
-        }
-    }
+	        TextField offerPriceField = new TextField();
+	        offerPriceField.setPromptText("Offer Price");
+	        
+	        
+	        VBox vbox = new VBox(10, new Label("Offer Price:"), offerPriceField);
+	        vbox.setPadding(new Insets(10));
+	        
+	        dialog.getDialogPane().setContent(vbox);
 
-    private void handleAddToWishlist(String itemName) {
-        Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
-        confirmationAlert.setTitle("Confirmation");
-        confirmationAlert.setHeaderText("Add to Wishlist");
-        confirmationAlert.setContentText("Are you sure you want to add " + itemName + " to your wishlist?");
+	        dialog.setResultConverter(dialogButton -> {
+	            if (dialogButton == submitButtonType) {
+	                return offerPriceField.getText().trim();
+	            }
+	            return null;
+	        });
 
-        Optional<ButtonType> result = confirmationAlert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            System.out.println("Item added to wishlist: " + itemName);
-            // Tambahkan logika penambahan ke wishlist di sini
-            Alert successAlert = new Alert(AlertType.INFORMATION);
-            successAlert.setTitle("Wishlist Updated");
-            successAlert.setHeaderText(null);
-            successAlert.setContentText(itemName + " has been added to your wishlist.");
-            successAlert.showAndWait();
-        } else {
-            System.out.println("Adding to wishlist canceled for: " + itemName);
-        }
-    }
+	        Optional<String> offerResult = dialog.showAndWait();
+	        if (offerResult.isPresent()) {
+	            String offerValue = offerResult.get();
+	     
+	       
+	            String buyerId = pageManager.getLoggedInUser().getUser_id();
+	            Response<Offer> res = ItemController.OfferPrice(product.getProduct_id(), buyerId, offerValue);
+	            
+	            
+	            if (res.getIsSuccess()) {
+	                showAlert(AlertType.INFORMATION, "Offer Submitted", "Your offer has been submitted successfully.");
+	            } else {
+	                showAlert(AlertType.ERROR, "Offer Failed", res.getMessages());
+	            }
+	        }
+	    }
+
+	    private void handleAddToWishlist(Product product) {
+	    	
+	        Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
+	        confirmationAlert.setTitle("Add to Wishlist");
+	        confirmationAlert.setHeaderText("Confirm Wishlist Addition");
+	        confirmationAlert.setContentText("Are you sure you want to add " + product.item().getItem_name() + " to your wishlist?");
+	        
+	        Optional<ButtonType> result = confirmationAlert.showAndWait();
+	        if (result.isPresent() && result.get() == ButtonType.OK) {
+	            String userId = pageManager.getLoggedInUser().getUser_id();
+	            Response<models.Wishlist> res = WishlistController.AddWishlist(product.getProduct_id(), userId);
+	            if (res.getIsSuccess()) {
+	                showAlert(AlertType.INFORMATION, "Wishlist Updated", product.item().getItem_name() + " has been added to your wishlist.");
+	            } else {
+	                showAlert(AlertType.ERROR, "Wishlist Failed", res.getMessages());
+	            }
+	        }
+	    }
+
+	    @Override
+	    public void handle(ActionEvent event) {
+
+	    }
+
+	    public Scene getScene() {
+	        return scene;
+	    }
+
+	    private void showAlert(AlertType type, String title, String content) {
+	        Alert alert = new Alert(type);
+	        alert.setTitle(title);
+	        alert.setHeaderText(null);
+	        alert.setContentText(content);
+	        alert.showAndWait();
+	    }
 }

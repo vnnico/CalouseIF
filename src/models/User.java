@@ -171,13 +171,13 @@ public class User extends Model{
 	@Override
 	protected String getTablename() {
 		// TODO Auto-generated method stub
-		return tableName;
+		return this.tableName;
 	}
 
 	@Override
 	protected String getPrimarykey() {
 		// TODO Auto-generated method stub
-		return primaryKey;
+		return this.primaryKey;
 	}
 	
 

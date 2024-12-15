@@ -7,15 +7,15 @@ import services.Response;
 
 public class WishlistController {
 
-	public Response<ArrayList<Wishlist>> ViewWishlist(String User_id){
+	public static Response<ArrayList<Wishlist>> ViewWishlist(String User_id){
 		return Wishlist.ViewWishlist(User_id);
 	}
 	
-	public Response<Wishlist> AddWishlist(String Product_id, String User_id) {
+	public static Response<Wishlist> AddWishlist(String Product_id, String User_id) {
 		return Wishlist.AddWishlist(Product_id, User_id);
 	}
 	
-	public Response<Wishlist> RemoveWishlist(String Wishlist_id) {
+	public static Response<Wishlist> RemoveWishlist(String Wishlist_id) {
 		return Wishlist.RemoveWishlist(Wishlist_id);
 	}
 	

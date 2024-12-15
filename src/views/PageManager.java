@@ -2,145 +2,117 @@ package views;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import models.User;
 import views.Buyer.BuyerHomePage;
 import views.Buyer.ViewPurchasePage;
 import views.Buyer.ViewWishlistPage;
 import views.Seller.OfferedItemPage;
 import views.Seller.SellerHomePage;
 import views.Admin.AdminHomePage;
+import views.LoginPage;
+import views.RegisterPage;
 
 public class PageManager {
 
-	private Stage primaryStage;
+    private Stage primaryStage;
     private Scene loginScene;
     private Scene registerScene;
-    private Scene adminDashboardScene;
-    private Scene sellerDashboardScene;
-    private Scene buyerDashboardScene;
-    private Scene viewWishlistScene;
-    private Scene viewPurchaseScene;
-    private Scene offeredItemScene;
+    
+    private User loggedInUser;
     
     public PageManager(Stage stage) {
-    	 this.primaryStage = stage;
-    	 initPages();
-//         userDatabase = new HashMap<>();
-//         initializeUsers(); // Prepopulate some users
-//         initPages();
+        this.primaryStage = stage;
+        initStaticPages();
     }
     
-//    private void initializeUsers() {
-//        // Prepopulate dengan beberapa pengguna
-//        userDatabase.put("admin", new User("admin", "adminpass", "admin"));
-//        userDatabase.put("seller", new User("seller", "sellerpass", "seller"));
-//        userDatabase.put("buyer", new User("buyer", "buyerpass", "buyer"));
-//    }
-    
-    private void initPages() {
-       
+    private void initStaticPages() {
         LoginPage loginPage = new LoginPage(this);
         RegisterPage registerPage = new RegisterPage(this);
         
-        AdminHomePage adminDashboard = new AdminHomePage(this);
-        SellerHomePage sellerDashboard = new SellerHomePage(this);
-        BuyerHomePage buyerDashboard = new BuyerHomePage(this);
-        
-        ViewWishlistPage viewWishlistPage = new ViewWishlistPage(this);
-        ViewPurchasePage viewPurchasePage = new ViewPurchasePage(this);
-        OfferedItemPage offeredItemPage = new OfferedItemPage(this);
-        
-        
         loginScene = loginPage.getScene();
         registerScene = registerPage.getScene();
-        adminDashboardScene = adminDashboard.getScene();
-        sellerDashboardScene = sellerDashboard.getScene();
-        buyerDashboardScene = buyerDashboard.getScene();
-        viewWishlistScene = viewWishlistPage.getScene();
-        viewPurchaseScene = viewPurchasePage.getScene();
-        offeredItemScene = offeredItemPage.getScene();
     }
     
+
     public void showLoginPage() {
         primaryStage.setScene(loginScene);
         primaryStage.setTitle("Login");
+        primaryStage.show();
     }
 
     public void showRegisterPage() {
         primaryStage.setScene(registerScene);
         primaryStage.setTitle("Register");
+        primaryStage.show();
     }
 
     public void showAdminDashboard() {
+    
+        AdminHomePage adminDashboard = new AdminHomePage(this);
+        Scene adminDashboardScene = adminDashboard.getScene();
         primaryStage.setScene(adminDashboardScene);
         primaryStage.setTitle("Admin Dashboard");
+        primaryStage.show();
     }
 
     public void showSellerDashboard() {
+        SellerHomePage sellerDashboard = new SellerHomePage(this);
+        Scene sellerDashboardScene = sellerDashboard.getScene();
         primaryStage.setScene(sellerDashboardScene);
         primaryStage.setTitle("Seller Dashboard");
+        primaryStage.show();
     }
 
     public void showBuyerDashboard() {
+        BuyerHomePage buyerDashboard = new BuyerHomePage(this);
+        Scene buyerDashboardScene = buyerDashboard.getScene();
         primaryStage.setScene(buyerDashboardScene);
         primaryStage.setTitle("Buyer Dashboard");
+        primaryStage.show();
     }
     
     public void showViewWishlist() {
+        if (loggedInUser == null) {
+            showLoginPage();
+            return;
+        }
+        ViewWishlistPage viewWishlistPage = new ViewWishlistPage(this);
+        Scene viewWishlistScene = viewWishlistPage.getScene();
         primaryStage.setScene(viewWishlistScene);
         primaryStage.setTitle("Wishlist");
+        primaryStage.show();
     }
     
     public void showViewPurchaseHistory() {
+        if (loggedInUser == null) {
+            showLoginPage();
+            return;
+        }
+        ViewPurchasePage viewPurchasePage = new ViewPurchasePage(this);
+        Scene viewPurchaseScene = viewPurchasePage.getScene();
         primaryStage.setScene(viewPurchaseScene);
         primaryStage.setTitle("Purchase History");
+        primaryStage.show();
     }
     
     public void showOfferedItemPage() {
+        OfferedItemPage offeredItemPage = new OfferedItemPage(this);
+        Scene offeredItemScene = offeredItemPage.getScene();
         primaryStage.setScene(offeredItemScene);
         primaryStage.setTitle("Offered Items");
+        primaryStage.show();
     }
     
-    public Stage getPrimaryStage() {
-    	return primaryStage;
-    }
-    
-    // Metode untuk menangani login
-    public void handleLogin() {
-//        if (userDatabase.containsKey(username)) {
-//            User user = userDatabase.get(username);
-//            if (user.getPassword().equals(password)) {
-//                // Login berhasil, navigasi berdasarkan role
-//                switch (user.getRole()) {
-//                    case "admin":
-//                        showAdminDashboard();
-//                        break;
-//                    case "seller":
-//                        showSellerDashboard();
-//                        break;
-//                    case "buyer":
-//                        showBuyerDashboard();
-//                        break;
-//                    default:
-//                        System.out.println("Role tidak dikenal: " + user.getRole());
-//                        return false;
-//                }
-//                return true;
-//            }
-//        }
-//        return false; // Login gagal
-    	System.out.println("SINI");
-    	showAdminDashboard();
+ 
+    public void setLoggedInUser(User user) {
+        this.loggedInUser = user;
     }
 
-    // Metode untuk menangani registrasi
-//    public boolean handleRegister(String username, String password, String phone, String address, String role) {
-//        if (userDatabase.containsKey(username)) {
-//            // Username sudah ada
-//            return false;
-//        } else {
-//            User newUser = new User(username, password, role);
-//            userDatabase.put(username, newUser);
-//            return true;
-//        }
-//    }
+    public User getLoggedInUser() {
+        return this.loggedInUser;
+    }
+
+    public void clearLoggedInUser() {
+        this.loggedInUser = null;
+    }
 }

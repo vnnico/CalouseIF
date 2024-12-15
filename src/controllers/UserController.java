@@ -18,13 +18,13 @@ public class UserController {
 	}
 	
 	private static Boolean PhoneNumberValidation(String words) {
-		if(words.charAt(0) != '+' &&
-				words.charAt(1) != '6' &&
-				words.charAt(2) != '2') {
-			return false;
-		}
-		
-		return true;
+		 
+	    if (!words.startsWith("+62")) {
+	        return false;
+	    }
+	    
+	    return true;
+	
 	}
 	
 	public static Response<User> Login(String Username, String Password) {
@@ -83,8 +83,8 @@ public class UserController {
 			res.setIsSuccess(false);
 			res.setData(null);
 			return res;
-		}else if(Phone_Number.length() != 12) {
-			res.setMessages("Phone Number must be 10 numbers long!");
+		}else if(Phone_Number.length() < 12) {
+			res.setMessages("Phone Number must at least be 10 numbers long!");
 			res.setIsSuccess(false);
 			res.setData(null);
 			return res;

@@ -1,123 +1,138 @@
 package views.Buyer;
 
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
+import controllers.TransactionController;
+import models.Transaction;
+import models.Wishlist;
+import models.Item;
+import services.Response;
 import views.PageManager;
 
-public class ViewPurchasePage {
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.geometry.*;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+
+public class ViewPurchasePage implements EventHandler<ActionEvent> {
 
     private Scene scene;
     private BorderPane borderPane;
-    private GridPane historyTable;
-    private HBox header;
-    private MenuButton menuButton;
-    private MenuItem homepageMenuItem, wishlistMenuItem;
-    private Stage primaryStage;
-
+    private TableView<Transaction> transactionTable;
     private PageManager pageManager;
-    
+
     public ViewPurchasePage(PageManager pageManager) {
-    	 this.pageManager = pageManager;
-         this.primaryStage = pageManager.getPrimaryStage();
+        this.pageManager = pageManager;
         initUI();
-        initMenu();
         setLayout();
+        loadHistory();
     }
 
     private void initUI() {
         borderPane = new BorderPane();
-        historyTable = new GridPane();
 
-        // Header
-        header = new HBox();
+        HBox header = new HBox();
         header.setPadding(new Insets(10));
         header.setSpacing(10);
-        header.setBackground(new Background(new BackgroundFill(
-            Color.LIGHTGRAY,
-            CornerRadii.EMPTY,
-            Insets.EMPTY
-        )));
+        Label title = new Label("Purchase History");
+        title.setStyle("-fx-font-size:20px;");
+        header.getChildren().add(title);
 
-        menuButton = new MenuButton("Menu");
-        homepageMenuItem = new MenuItem("Homepage");
-        wishlistMenuItem = new MenuItem("Wishlist");
+        // Menu
+        MenuBar menuBar = new MenuBar();
+        Menu menu = new Menu("Menu");
+        MenuItem homepageMenuItem = new MenuItem("Homepage");
+        MenuItem wishlistMenuItem = new MenuItem("Wishlist");
+        menu.getItems().addAll(homepageMenuItem, wishlistMenuItem);
+        menuBar.getMenus().add(menu);
 
+        homepageMenuItem.setOnAction(e -> pageManager.showBuyerDashboard());
+        wishlistMenuItem.setOnAction(e -> pageManager.showViewWishlist());
+
+        VBox topBox = new VBox(menuBar, header);
+        borderPane.setTop(topBox);
+
+        transactionTable = new TableView<>();
+       
         
-        borderPane.setTop(header);
-    }
+        TableColumn<Transaction, String> idColumn = new TableColumn<>("Transaction ID");
+        idColumn.setCellValueFactory(param -> {
+            String id = param.getValue().getTransaction_id(); 
+            return new ReadOnlyObjectWrapper<>(id); 
+        });
+        
+        TableColumn<Transaction, String> itemNameColumn = new TableColumn<>("Item Name");
+        itemNameColumn.setCellValueFactory(param -> {
+            String itemName = param.getValue().product().item().getItem_name(); 
+            return new ReadOnlyObjectWrapper<>(itemName); 
+        });
+        
+        TableColumn<Transaction, String> categoryColumn = new TableColumn<>("Category");
+        categoryColumn.setCellValueFactory(param -> {
+            String category = param.getValue().product().item().getItem_category(); 
+            return new ReadOnlyObjectWrapper<>(category); 
+        });
+        
+        TableColumn<Transaction, String> sizeColumn = new TableColumn<>("Item Size");
+        sizeColumn.setCellValueFactory(param -> {
+            String size = param.getValue().product().item().getItem_size();
+            return new ReadOnlyObjectWrapper<>(size);
+        });
 
-    private void setLayout() {
-        // Setup Purchase History Table Headers
-        Label transactionIdHeader = new Label("Transaction ID");
-        Label itemNameHeader = new Label("Item Name");
-        Label itemCategoryHeader = new Label("Item Category");
-        Label itemSizeHeader = new Label("Item Size");
-        Label itemPriceHeader = new Label("Item Price");
+        TableColumn<Transaction, BigDecimal> priceColumn = new TableColumn<>("Item Price");
+        priceColumn.setCellValueFactory(param -> {
+            BigDecimal price = param.getValue().product().item().getItem_price();
+            return new ReadOnlyObjectWrapper<>(price);
+        });
+        
+        idColumn.setMinWidth(100);
+        itemNameColumn.setMinWidth(150);
+        categoryColumn.setMinWidth(150);
+        sizeColumn.setMinWidth(100);
+        priceColumn.setMinWidth(100);
+        
+        transactionTable.getColumns().addAll(idColumn, itemNameColumn, categoryColumn, sizeColumn, priceColumn);
 
-        historyTable.add(transactionIdHeader, 0, 0);
-        historyTable.add(itemNameHeader, 1, 0);
-        historyTable.add(itemCategoryHeader, 2, 0);
-        historyTable.add(itemSizeHeader, 3, 0);
-        historyTable.add(itemPriceHeader, 4, 0);
-
-        GridPane.setMargin(transactionIdHeader, new Insets(10));
-        GridPane.setMargin(itemNameHeader, new Insets(10, 70, 10, 70));
-        GridPane.setMargin(itemCategoryHeader, new Insets(10, 30, 10, 30));
-        GridPane.setMargin(itemSizeHeader, new Insets(10, 30, 10, 30));
-        GridPane.setMargin(itemPriceHeader, new Insets(10, 30, 10, 30));
-
-        // Contoh Data Purchase History
-        for (int i = 1; i <= 20; i++) {
-            Label transactionId = new Label("TR" + String.format("%04d", i));
-            Label itemName = new Label("Item Name " + i);
-            Label itemCategory = new Label("Category " + i);
-            Label itemSize = new Label("Size " + i);
-            Label itemPrice = new Label("$" + (20 * i));
-
-            historyTable.add(transactionId, 0, i);
-            historyTable.add(itemName, 1, i);
-            historyTable.add(itemCategory, 2, i);
-            historyTable.add(itemSize, 3, i);
-            historyTable.add(itemPrice, 4, i);
-
-            GridPane.setMargin(transactionId, new Insets(10));
-            GridPane.setMargin(itemName, new Insets(10, 10, 10, 10));
-            GridPane.setMargin(itemCategory, new Insets(10, 10, 10, 10));
-            GridPane.setMargin(itemSize, new Insets(10, 10, 10, 10));
-            GridPane.setMargin(itemPrice, new Insets(10, 10, 10, 10));
-        }
-
-        ScrollPane scrollPane = new ScrollPane(historyTable);
+        ScrollPane scrollPane = new ScrollPane(transactionTable);
         scrollPane.setFitToWidth(true);
         scrollPane.setPadding(new Insets(10));
+        borderPane.setCenter(transactionTable);
 
-        borderPane.setCenter(scrollPane);
         scene = new Scene(borderPane, 1000, 600);
     }
 
-    private void initMenu() {
-
-        menuButton.getItems().addAll(homepageMenuItem, wishlistMenuItem);
-        header.getChildren().add(menuButton);
-        
-        
-        homepageMenuItem.setOnAction(event -> {
-        	pageManager.showBuyerDashboard();
-        });
-        
-        wishlistMenuItem.setOnAction(event -> {
-        	pageManager.showViewWishlist();
-        });
+    private void setLayout() {
+        // Layout done in initUI
     }
-    
+
+    private void loadHistory() {
+        String userId = pageManager.getLoggedInUser().getUser_id();
+        Response<ArrayList<Transaction>> res = TransactionController.ViewHistory(userId);
+        if (res.getIsSuccess()) {
+            transactionTable.setItems(javafx.collections.FXCollections.observableArrayList(res.getData()));
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", res.getMessages());
+        }
+    }
+
+    @Override
+    public void handle(ActionEvent event) {
+
+    }
+
     public Scene getScene() {
         return scene;
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }
