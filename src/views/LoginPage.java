@@ -103,6 +103,7 @@ public class LoginPage implements EventHandler<ActionEvent> {
 
 	       
 	            if (username.equals("admin") && password.equals("admin")) {
+	            	
 	                pageManager.showAdminDashboard();
 	                return;
 	            }
@@ -111,6 +112,7 @@ public class LoginPage implements EventHandler<ActionEvent> {
 	            Response<User> res = UserController.Login(username, password);
 	            if (res.getIsSuccess() && res.getData() != null) {
 	                User loggedInUser = res.getData();
+	                pageManager.setLoggedInUser(loggedInUser);
 	                String role = loggedInUser.getRole();
 
 	                switch (role.toLowerCase()) {

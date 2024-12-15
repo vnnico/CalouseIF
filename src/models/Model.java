@@ -32,7 +32,7 @@ public abstract class Model {
 				ToModel instance = otherModel.getDeclaredConstructor().newInstance();
                 Field[] fields = instance.getClass().getDeclaredFields();
         	    for (Field field : fields) {
-        	    	if(field.getName().equals("Tablename") || field.getName().equals("Primarykey")) continue;
+        	    	if(field.getName().equals("tableName") || field.getName().equals("primaryKey")) continue;
         	        field.setAccessible(true);
     	            Object value = rs.getObject(field.getName());
     	            field.set(instance, value);
@@ -65,7 +65,7 @@ public abstract class Model {
                 ToModel instance = otherModel.getDeclaredConstructor().newInstance();
                 Field[] fields = instance.getClass().getDeclaredFields();
         	    for (Field field : fields) {
-        	    	if(field.getName().equals("Tablename") || field.getName().equals("Primarykey")) continue;
+        	    	if(field.getName().equals("tableName") || field.getName().equals("primaryKey")) continue;
         	        field.setAccessible(true);
     	            Object value = rs.getObject(field.getName());
     	            field.set(instance, value);
@@ -96,7 +96,7 @@ public abstract class Model {
                 FromModel instance = model.getDeclaredConstructor().newInstance();
                 Field[] fields = instance.getClass().getDeclaredFields();
         	    for (Field field : fields) {
-        	    	if(field.getName().equals("Tablename") || field.getName().equals("Primarykey")) continue;
+        	    	if(field.getName().equals("tableName") || field.getName().equals("primaryKey")) continue;
         	        field.setAccessible(true);
     	            Object value = rs.getObject(field.getName());
     	            field.set(instance, value);
@@ -129,7 +129,7 @@ public abstract class Model {
             if (rs.next()) {
                 Field[] fields = instance.getClass().getDeclaredFields();
         	    for (Field field : fields) {
-        	    	if(field.getName().equals("Tablename") || field.getName().equals("Primarykey")) continue;
+        	    	if(field.getName().equals("tableName") || field.getName().equals("primaryKey")) continue;
         	        field.setAccessible(true);
     	            Object value = rs.getObject(field.getName());
     	            field.set(instance, value);
@@ -156,7 +156,7 @@ public abstract class Model {
             if(this.getPrimarykey() == null) return null;
             
             for (Field field : fields) {
-            	if(field.getName().equals("Tablename") || field.getName().equals("Primarykey")) continue;
+            	if(field.getName().equals("tableName") || field.getName().equals("primaryKey")) continue;
 				field.setAccessible(true);
 				Object value = field.get(this);
 				if(!field.getName().equals("id")) {
@@ -203,7 +203,7 @@ public abstract class Model {
             Field[] fields = this.getClass().getDeclaredFields();
             
             for (Field field : fields) {
-            	if(field.getName().equals("Tablename") || field.getName().equals("Primarykey")) continue;
+            	if(field.getName().equals("tableName") || field.getName().equals("primaryKey")) continue;
 				field.setAccessible(true);
 				Object value = field.get(this);
 				if(columns.length() > 0) {
@@ -264,7 +264,7 @@ public abstract class Model {
 	            FromModel instance = model.getDeclaredConstructor().newInstance();
 	            Field[] fields = instance.getClass().getDeclaredFields();
 	            for (Field field : fields) {
-	                if (field.getName().equals("Tablename") || field.getName().equals("Primarykey")) continue;
+	                if (field.getName().equals("tableName") || field.getName().equals("primaryKey")) continue;
 	                field.setAccessible(true);
 	                Object value = rs.getObject(field.getName());
 	                field.set(instance, value);
@@ -312,7 +312,7 @@ public abstract class Model {
 	        if (rs.next()) {
 	            Field[] fields = instance.getClass().getDeclaredFields();
 	            for (Field field : fields) {
-	                if (field.getName().equals("Tablename") || field.getName().equals("Primarykey")) continue;
+	                if (field.getName().equals("tableName") || field.getName().equals("primaryKey")) continue;
 	                field.setAccessible(true);
 	                Object value = rs.getObject(field.getName());
 	                field.set(instance, value);

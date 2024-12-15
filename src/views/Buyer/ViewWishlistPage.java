@@ -1,5 +1,8 @@
 package views.Buyer;
 
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -8,140 +11,171 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import models.Product;
+import models.Wishlist;
+import services.Response;
 import views.PageManager;
 import javafx.scene.paint.Color;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Optional;
 
-public class ViewWishlistPage {
+import controllers.WishlistController;
+
+public class ViewWishlistPage implements EventHandler<ActionEvent>{
+
 
     private Scene scene;
     private BorderPane borderPane;
-    private GridPane wishlistTable;
-    
-    private HBox header;
-    private MenuButton menuButton;
-    private MenuItem homepageMenuItem, purchaseHistoryMenuItem;
-    
-    private Stage primaryStage;
-
+    private TableView<Wishlist> wishlistTable;
     private PageManager pageManager;
-    
+
     public ViewWishlistPage(PageManager pageManager) {
-    	 this.pageManager = pageManager;
-         this.primaryStage = pageManager.getPrimaryStage();
+        this.pageManager = pageManager;
         initUI();
-        initMenu();
         setLayout();
+        loadWishlist();
     }
 
     private void initUI() {
         borderPane = new BorderPane();
-        wishlistTable = new GridPane();
-
-        // Header
-        header = new HBox();
+        
+        HBox header = new HBox();
         header.setPadding(new Insets(10));
         header.setSpacing(10);
-        header.setBackground(new Background(new BackgroundFill(
-            Color.LIGHTGRAY, 
-            CornerRadii.EMPTY, 
-            Insets.EMPTY 
-        )));
+        header.setAlignment(Pos.CENTER_LEFT);
+        Label title = new Label("Your Wishlist");
+        title.setStyle("-fx-font-size:20px;");
+        header.getChildren().add(title);
+
+        // Menu
+        MenuBar menuBar = new MenuBar();
+        Menu menu = new Menu("Menu");
+        MenuItem homepageMenuItem = new MenuItem("Homepage");
+        MenuItem purchaseHistoryMenuItem = new MenuItem("Purchase History");
+        menu.getItems().addAll(homepageMenuItem, purchaseHistoryMenuItem);
+        menuBar.getMenus().add(menu);
+
+        homepageMenuItem.setOnAction(e -> pageManager.showBuyerDashboard());
+        purchaseHistoryMenuItem.setOnAction(e -> pageManager.showViewPurchaseHistory());
+
+        VBox topBox = new VBox(menuBar, header);
+        borderPane.setTop(topBox);
+
+        wishlistTable = new TableView<>();
+
         
-        menuButton = new MenuButton("Menu");
-        homepageMenuItem = new MenuItem("Homepage");
-        purchaseHistoryMenuItem = new MenuItem("Purchase History");
-
-        borderPane.setTop(header);
-    }
-
-    private void setLayout() {
-        // Setup Wishlist Table Headers
-        Label idHeader = new Label("ID");
-        Label itemNameHeader = new Label("Item Name");
-        Label itemCategoryHeader = new Label("Item Category");
-        Label itemSizeHeader = new Label("Item Size");
-        Label itemPriceHeader = new Label("Item Price");
-        Label actionHeader = new Label("Action");
+        TableColumn<Wishlist, String> idColumn = new TableColumn<>("Wishlist ID");
+        idColumn.setCellValueFactory(param -> {
+            String id = param.getValue().getWishlist_id(); 
+            return new ReadOnlyObjectWrapper<>(id); 
+        });
         
-        wishlistTable.add(idHeader, 0, 0);
-        wishlistTable.add(itemNameHeader, 1, 0);
-        wishlistTable.add(itemCategoryHeader, 2, 0);
-        wishlistTable.add(itemSizeHeader, 3, 0);
-        wishlistTable.add(itemPriceHeader, 4, 0);
-        wishlistTable.add(actionHeader, 5, 0);
 
-        GridPane.setMargin(idHeader, new Insets(10, 10, 10, 10));
-        GridPane.setMargin(itemNameHeader, new Insets(10, 70, 10, 70));
-        GridPane.setMargin(itemCategoryHeader, new Insets(10, 30, 10, 30));
-        GridPane.setMargin(itemSizeHeader, new Insets(10, 30, 10, 30));
-        GridPane.setMargin(itemPriceHeader, new Insets(10, 30, 10, 30));
-        GridPane.setMargin(actionHeader, new Insets(10, 100, 10, 100));
 
-        // Contoh Data Wishlist
-        for (int i = 1; i <= 20; i++) {
-            Label rowId = new Label(String.valueOf(i));
-            Label rowItemName = new Label("Item Name " + i);
-            Label rowItemCategory = new Label("Category " + i);
-            Label rowItemSize = new Label("Size " + i);
-            Label rowItemPrice = new Label("$" + (10 * i));
-            Button removeButton = new Button("Remove");
+        TableColumn<Wishlist, String> itemNameColumn = new TableColumn<>("Item Name");
+        itemNameColumn.setCellValueFactory(param -> {
+            String itemName = param.getValue().product().item().getItem_name(); 
+            return new ReadOnlyObjectWrapper<>(itemName); 
+        });
+        
+        TableColumn<Wishlist, String> categoryColumn = new TableColumn<>("Category");
+        categoryColumn.setCellValueFactory(param -> {
+            String category = param.getValue().product().item().getItem_category(); 
+            return new ReadOnlyObjectWrapper<>(category); 
+        });
+        
+        TableColumn<Wishlist, String> sizeColumn = new TableColumn<>("Item Size");
+        sizeColumn.setCellValueFactory(param -> {
+            String size = param.getValue().product().item().getItem_size();
+            return new ReadOnlyObjectWrapper<>(size);
+        });
 
-            removeButton.setOnAction(e -> handleRemove(rowItemName.getText()));
+        TableColumn<Wishlist, BigDecimal> priceColumn = new TableColumn<>("Item Price");
+        priceColumn.setCellValueFactory(param -> {
+            BigDecimal price = param.getValue().product().item().getItem_price();
+            return new ReadOnlyObjectWrapper<>(price);
+        });
 
-            GridPane.setHalignment(removeButton, HPos.CENTER);
 
-            wishlistTable.add(rowId, 0, i);
-            wishlistTable.add(rowItemName, 1, i);
-            wishlistTable.add(rowItemCategory, 2, i);
-            wishlistTable.add(rowItemSize, 3, i);
-            wishlistTable.add(rowItemPrice, 4, i);
-            wishlistTable.add(removeButton, 5, i);
+        TableColumn<Wishlist, Void> actionColumn = new TableColumn<>("Action");
+        actionColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button removeButton = new Button("Remove");
 
-            GridPane.setMargin(rowId, new Insets(10));
-            GridPane.setMargin(rowItemName, new Insets(10, 10, 10, 10));
-            GridPane.setMargin(rowItemCategory, new Insets(10, 10, 10, 10));
-            GridPane.setMargin(rowItemSize, new Insets(10, 10, 10, 10));
-            GridPane.setMargin(rowItemPrice, new Insets(10, 10, 10, 10));
-            GridPane.setMargin(removeButton, new Insets(10, 10, 10, 10));
-        }
+            {
+                removeButton.setOnAction(e -> {
+                    Wishlist w = getTableView().getItems().get(getIndex());
+                    handleRemove(w);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(removeButton);
+                }
+            }
+        });
+
+        wishlistTable.getColumns().addAll(idColumn, itemNameColumn, categoryColumn, sizeColumn, priceColumn, actionColumn);
 
         ScrollPane scrollPane = new ScrollPane(wishlistTable);
         scrollPane.setFitToWidth(true);
         scrollPane.setPadding(new Insets(10));
+        borderPane.setCenter(wishlistTable);
 
-        borderPane.setCenter(scrollPane);
         scene = new Scene(borderPane, 1000, 600);
     }
 
-    private void initMenu() {
-    	menuButton.getItems().addAll(homepageMenuItem, purchaseHistoryMenuItem);
-        header.getChildren().add(menuButton);
-        
-        homepageMenuItem.setOnAction(event -> {
-        	pageManager.showBuyerDashboard();
-        });
-        
-        purchaseHistoryMenuItem.setOnAction(event -> {
-        	pageManager.showViewPurchaseHistory();
-        });
-        
-        
+    private void setLayout() {
+        // Layout done in initUI
     }
-    private void handleRemove(String itemName) {
-        Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
+
+    private void loadWishlist() {
+        String userId = pageManager.getLoggedInUser().getUser_id();
+        Response<ArrayList<Wishlist>> res = WishlistController.ViewWishlist(userId);
+        if (res.getIsSuccess()) {
+            wishlistTable.setItems(javafx.collections.FXCollections.observableArrayList(res.getData()));
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", res.getMessages());
+        }
+    }
+
+    private void handleRemove(Wishlist w) {
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmationAlert.setTitle("Confirmation");
         confirmationAlert.setHeaderText("Remove Item");
-        confirmationAlert.setContentText("Are you sure you want to remove " + itemName + " from the wishlist?");
+        confirmationAlert.setContentText("Are you sure you want to remove this item from the wishlist?");
         Optional<ButtonType> result = confirmationAlert.showAndWait();
+
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            System.out.println("Removed from wishlist: " + itemName);
-            // Tambahkan logika penghapusan item dari wishlist di sini
+            Response<Wishlist> res = WishlistController.RemoveWishlist(w.getWishlist_id());
+            if (res.getIsSuccess()) {
+                showAlert(Alert.AlertType.INFORMATION, "Wishlist Updated", "Item removed from wishlist.");
+                wishlistTable.getItems().remove(w);
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Removal Failed", res.getMessages());
+            }
         }
+    }
+
+    @Override
+    public void handle(ActionEvent event) {
     }
 
     public Scene getScene() {
         return scene;
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

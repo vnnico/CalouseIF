@@ -167,8 +167,8 @@ public class Item extends Model {
 				}
 			}
 			
-			listProduct = ProductFactory.createProduct().whereIn("Product_id", ids);
-			res.setMessages("Success: Retrived All Browsed items!");
+			listProduct = ProductFactory.createProduct().whereIn("product_id", ids);
+			res.setMessages("Success: Retrieved All Browsed items!");
 			res.setIsSuccess(true);
 			res.setData(listProduct);
 			return res;
