@@ -1,4 +1,4 @@
-package views;
+package views.Admin;
 
 import java.math.BigDecimal;
 
@@ -17,8 +17,10 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import models.Item;
+import views.PageManager;
 
 public class AdminHomePage {
 
@@ -28,9 +30,14 @@ public class AdminHomePage {
     private MenuBar menuBar;
     private Menu menu;
     private MenuItem menuItem;
+    
     private Scene scene;
+    private Stage primaryStage;
+    private PageManager pageManager;
 
-    public AdminHomePage() {
+    public AdminHomePage(PageManager pageManager) {
+    	this.pageManager = pageManager;
+        this.primaryStage = pageManager.getPrimaryStage();
         initUI();
         initTable();
         setLayout();
@@ -42,9 +49,9 @@ public class AdminHomePage {
         // Menu Bar
         menuBar = new MenuBar();
         menu = new Menu("Menu");
-        menuItem = new MenuItem("Offered Items");
-        menu.getItems().add(menuItem);
-        menuBar.getMenus().add(menu);
+//        menuItem = new MenuItem("Offered Items");
+//        menu.getItems().add(menuItem);
+//        menuBar.getMenus().add(menu);
 
         // Header Label
         header = new Label("ADMIN DASHBOARD");
