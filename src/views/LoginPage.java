@@ -1,15 +1,21 @@
 package views;
 
+import controllers.UserController;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import models.User;
+import services.Response;
 
 
 public class LoginPage implements EventHandler<ActionEvent> {
@@ -22,6 +28,7 @@ public class LoginPage implements EventHandler<ActionEvent> {
     private TextField usernameTF;
     private PasswordField passwordPF;
     private Button loginBtn;
+    private Hyperlink registerLink; 
     
     private PageManager pageManager;
 
@@ -47,6 +54,8 @@ public class LoginPage implements EventHandler<ActionEvent> {
         passwordPF.setPromptText("Enter your password");
 
         loginBtn = new Button("Login");
+        
+        registerLink = new Hyperlink("Not registered? Register here");
 
         scene = new Scene(borderContainer, 400, 200);
     }
@@ -54,7 +63,10 @@ public class LoginPage implements EventHandler<ActionEvent> {
     private void addComponent() {
         borderContainer.setTop(titleLbl);
         borderContainer.setCenter(gridContainer);
-        borderContainer.setBottom(loginBtn);
+        
+        HBox bottomBox = new HBox(10, loginBtn, registerLink);
+        bottomBox.setAlignment(Pos.CENTER);
+        borderContainer.setBottom(bottomBox);
 
         gridContainer.add(usernameLbl, 0, 0);
         gridContainer.add(usernameTF, 1, 0);
@@ -67,6 +79,10 @@ public class LoginPage implements EventHandler<ActionEvent> {
     
     private void setEventHandler() {
     	loginBtn.setOnAction(this);
+    	 registerLink.setOnAction(event -> {
+    
+             pageManager.showRegisterPage();
+         });
     }
 
     public Scene getScene() {
@@ -75,40 +91,55 @@ public class LoginPage implements EventHandler<ActionEvent> {
 
 	@Override
 	public void handle(ActionEvent event) {
-		// TODO Auto-generated method stub
 		
-		if (event.getSource()== loginBtn) {
+		 if (event.getSource() == loginBtn) {
+	            String username = usernameTF.getText().trim();
+	            String password = passwordPF.getText().trim();
 
-			String username = usernameTF.getText().trim();
-	        String password = passwordPF.getText().trim();
+	            if (username.isEmpty() || password.isEmpty()) {
+	                showAlert(Alert.AlertType.WARNING, "Login Warning", "Please enter both username and password.");
+	                return;
+	            }
 
-	        if (username.isEmpty() || password.isEmpty()) {
-	            Alert alert = new Alert(Alert.AlertType.WARNING);
-	            alert.setTitle("Login Warning");
-	            alert.setHeaderText(null);
-	            alert.setContentText("Please enter both username and password.");
-	            alert.showAndWait();
-	        } else {
-//	          boolean success = pageManager.handleLogin(username, password);
-//	          if (!success) {
-//	              Alert alert = new Alert(Alert.AlertType.ERROR);
-//	              alert.setTitle("Login Failed");
-//	              alert.setHeaderText(null);
-//	              alert.setContentText("Invalid username or password.");
-//	              alert.showAndWait();
-//	          }
-	        	System.out.println("Masuk broo");
-	        	pageManager.handleLogin();
-	            // Jika login berhasil, PageManager sudah melakukan navigasi
+	       
+	            if (username.equals("admin") && password.equals("admin")) {
+	                pageManager.showAdminDashboard();
+	                return;
+	            }
+
+	         
+	            Response<User> res = UserController.Login(username, password);
+	            if (res.getIsSuccess() && res.getData() != null) {
+	                User loggedInUser = res.getData();
+	                String role = loggedInUser.getRole();
+
+	                switch (role.toLowerCase()) {
+	                    case "admin":
+	                        pageManager.showAdminDashboard();
+	                        break;
+	                    case "seller":
+	                        pageManager.showSellerDashboard();
+	                        break;
+	                    case "buyer":
+	                        pageManager.showBuyerDashboard();
+	                        break;
+	                    default:
+	                        showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid user role: " + role);
+	                        break;
+	                }
+	            } else {
+	                // Login failed
+	                showAlert(Alert.AlertType.ERROR, "Login Failed", res.getMessages() != null ? res.getMessages() : "Invalid username or password.");
+	            }
 	        }
-	    
-
-		/*
-		 * goToRegisterBtn.setOnAction((ActionEvent e) -> {
-		 * pageManager.showRegisterPage(); });
-		 */
-		}
-		}
+	}
 		
+	private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
     
 };

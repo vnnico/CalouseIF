@@ -333,7 +333,7 @@ public abstract class Model {
 	    try {
 	        ArrayList<FromModel> listToModels = new ArrayList<>();
 	        String query = "SELECT * FROM " + getTablename() + " WHERE " + columnName + " " + operator + " ?";
-	        
+
 	        
 	        ConnectionSingleton db_connection = ConnectionSingleton.getInstance();
 	        PreparedStatement ps = db_connection.prepareStatement(query);
@@ -344,7 +344,7 @@ public abstract class Model {
 	            FromModel instance = model.getDeclaredConstructor().newInstance();
 	            Field[] fields = instance.getClass().getDeclaredFields();
 	            for (Field field : fields) {
-	                if (field.getName().equals("Tablename") || field.getName().equals("Primarykey")) continue;
+	                if (field.getName().equals("tableName") || field.getName().equals("primaryKey")) continue;
 	                field.setAccessible(true);
 	                Object value = rs.getObject(field.getName());
 	                field.set(instance, value);

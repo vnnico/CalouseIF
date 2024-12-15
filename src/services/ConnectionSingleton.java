@@ -12,7 +12,7 @@ public class ConnectionSingleton {
 	private static ConnectionSingleton db_connection;
 
 	private final String HOST = "localhost:3306";
-	private final String DATABASE = "calouself";
+	private final String DATABASE = "calouseif";
 	private final String USERNAME = "root";
 	private final String PASSWORD = "";
 	private final String CONNECTION = String.format("jdbc:mysql://%s/%s", HOST, DATABASE);
