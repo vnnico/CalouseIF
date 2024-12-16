@@ -18,6 +18,7 @@ public class PageManager {
     private Scene loginScene;
     private Scene registerScene;
     
+    // Save login user
     private User loggedInUser;
     
     public PageManager(Stage stage) {
@@ -26,6 +27,7 @@ public class PageManager {
     }
     
     private void initStaticPages() {
+    	// Initiate Login and Register Page
         LoginPage loginPage = new LoginPage(this);
         RegisterPage registerPage = new RegisterPage(this);
         
@@ -34,18 +36,21 @@ public class PageManager {
     }
     
 
+    // LOGIN PAGE 
     public void showLoginPage() {
         primaryStage.setScene(loginScene);
         primaryStage.setTitle("Login");
         primaryStage.show();
     }
 
+    // REGISTER PAGE 
     public void showRegisterPage() {
         primaryStage.setScene(registerScene);
         primaryStage.setTitle("Register");
         primaryStage.show();
     }
 
+    // ADMIN DASHBOARD (VIEW REQUESTED ITEM)
     public void showAdminDashboard() {
     
         AdminHomePage adminDashboard = new AdminHomePage(this);
@@ -55,6 +60,7 @@ public class PageManager {
         primaryStage.show();
     }
 
+    // SELLER DASHBOARD (UPLOAD AND VIEW ITEM)
     public void showSellerDashboard() {
         SellerHomePage sellerDashboard = new SellerHomePage(this);
         Scene sellerDashboardScene = sellerDashboard.getScene();
@@ -62,7 +68,8 @@ public class PageManager {
         primaryStage.setTitle("Seller Dashboard");
         primaryStage.show();
     }
-
+    
+    // BUYER DASHBOARD (BROWSE ITEM, VIEW ITEM)
     public void showBuyerDashboard() {
         BuyerHomePage buyerDashboard = new BuyerHomePage(this);
         Scene buyerDashboardScene = buyerDashboard.getScene();
@@ -71,6 +78,7 @@ public class PageManager {
         primaryStage.show();
     }
     
+    // WISHLIST PAGE 
     public void showViewWishlist() {
         if (loggedInUser == null) {
             showLoginPage();
@@ -83,6 +91,7 @@ public class PageManager {
         primaryStage.show();
     }
     
+    // PURCHASE HISTORY PAGE
     public void showViewPurchaseHistory() {
         if (loggedInUser == null) {
             showLoginPage();
@@ -95,6 +104,7 @@ public class PageManager {
         primaryStage.show();
     }
     
+    // OFFERED ITEM PAGE 
     public void showOfferedItemPage() {
         OfferedItemPage offeredItemPage = new OfferedItemPage(this);
         Scene offeredItemScene = offeredItemPage.getScene();

@@ -35,6 +35,7 @@ public class ViewPurchasePage implements EventHandler<ActionEvent> {
     private void initUI() {
         borderPane = new BorderPane();
 
+        // Header Section with title 
         HBox header = new HBox();
         header.setPadding(new Insets(10));
         header.setSpacing(10);
@@ -42,7 +43,7 @@ public class ViewPurchasePage implements EventHandler<ActionEvent> {
         title.setStyle("-fx-font-size:20px;");
         header.getChildren().add(title);
 
-        // Menu
+        // Menu Bar consists of Homepage and wishlist page
         MenuBar menuBar = new MenuBar();
         Menu menu = new Menu("Menu");
         MenuItem homepageMenuItem = new MenuItem("Homepage");
@@ -59,6 +60,7 @@ public class ViewPurchasePage implements EventHandler<ActionEvent> {
         transactionTable = new TableView<>();
        
         
+        // Configure Table
         TableColumn<Transaction, String> idColumn = new TableColumn<>("Transaction ID");
         idColumn.setCellValueFactory(param -> {
             String id = param.getValue().getTransaction_id(); 
@@ -89,6 +91,7 @@ public class ViewPurchasePage implements EventHandler<ActionEvent> {
             return new ReadOnlyObjectWrapper<>(price);
         });
         
+        // Set column width
         idColumn.setMinWidth(100);
         itemNameColumn.setMinWidth(150);
         categoryColumn.setMinWidth(150);
@@ -97,6 +100,7 @@ public class ViewPurchasePage implements EventHandler<ActionEvent> {
         
         transactionTable.getColumns().addAll(idColumn, itemNameColumn, categoryColumn, sizeColumn, priceColumn);
 
+        // Adding scroll bar 
         ScrollPane scrollPane = new ScrollPane(transactionTable);
         scrollPane.setFitToWidth(true);
         scrollPane.setPadding(new Insets(10));
@@ -110,7 +114,10 @@ public class ViewPurchasePage implements EventHandler<ActionEvent> {
     }
 
     private void loadHistory() {
+    	
+    	// Get current authenticated user
         String userId = pageManager.getLoggedInUser().getUser_id();
+        // Fetch purchased item from db
         Response<ArrayList<Transaction>> res = TransactionController.ViewHistory(userId);
         if (res.getIsSuccess()) {
             transactionTable.setItems(javafx.collections.FXCollections.observableArrayList(res.getData()));

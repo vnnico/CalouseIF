@@ -44,15 +44,14 @@ public class AdminHomePage implements EventHandler<ActionEvent> {
         borderPane = new BorderPane();
         headerLabel = new Label("ADMIN DASHBOARD");
         headerLabel.setStyle("-fx-font-size: 20px; ");
- 
     }
-
 
     private void initializeTable() {
         tableView = new TableView<>();
         tableView.setPrefWidth(980);
         tableView.setPlaceholder(new Label("No items awaiting approval"));
 
+        // Generate column consist of Item ID, Item Name, Item Category, Item Size, and Item Status.
         TableColumn<Item, String> itemIDColumn = new TableColumn<>("Item ID");
         itemIDColumn.setCellValueFactory(new PropertyValueFactory<>("item_id"));
         itemIDColumn.setMinWidth(100);
@@ -78,6 +77,7 @@ public class AdminHomePage implements EventHandler<ActionEvent> {
         itemStatusColumn.setMinWidth(120);
 
     
+        // Action Button Group consists of Approve and Decline Buttons.
         TableColumn<Item, Void> actionColumn = new TableColumn<>("Actions");
         actionColumn.setMinWidth(200);
         actionColumn.setCellFactory(param -> new TableCell<>() {
@@ -87,7 +87,8 @@ public class AdminHomePage implements EventHandler<ActionEvent> {
 
             {
                 pane.setAlignment(Pos.CENTER);
-
+                
+        
                 approveButton.setOnAction(event -> {
                     Item item = getTableView().getItems().get(getIndex());
                     handleApprove(item);
@@ -139,6 +140,7 @@ public class AdminHomePage implements EventHandler<ActionEvent> {
 
     private void loadRequestedItems() {
      
+    	// Fetch Requested Item from DB.
         Response<ArrayList<Item>> response = ItemController.ViewRequestItem("Pending");
         
         if (response.getIsSuccess() && response.getData() != null) {
@@ -151,6 +153,8 @@ public class AdminHomePage implements EventHandler<ActionEvent> {
 
 
     private void handleApprove(Item item) {
+    	
+    	// Confirmation Alert Pop Up 
         Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
         confirmationAlert.setTitle("Confirm Approval");
         
@@ -161,10 +165,12 @@ public class AdminHomePage implements EventHandler<ActionEvent> {
         Optional<ButtonType> result = confirmationAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
         	
+        	// If admin click ok button, system will approve the item.
             Response<Item> res = ItemController.ApproveItem(item.getItem_id());
             if (res.getIsSuccess()) {
                 showAlert(AlertType.INFORMATION, "Success", "Item approved successfully.");
-                loadRequestedItems(); // Refresh the table
+                // Reload the table
+                loadRequestedItems(); 
             } else {
                 showAlert(AlertType.ERROR, "Error", res.getMessages() != null ? res.getMessages() : "Failed to approve item.");
             }
@@ -176,17 +182,18 @@ public class AdminHomePage implements EventHandler<ActionEvent> {
     private void handleDecline(Item item) {
 
 
+    	// Delete Confirmation Pop Up
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Decline Item");
         dialog.setHeaderText("Enter Reason for Declining the Item: " + item.getItem_name());
 
-
-
+        
+        // Add "Decline" and "Cancel" buttons to the dialog
         ButtonType declineButtonType = new ButtonType("Decline", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(declineButtonType, ButtonType.CANCEL);
 
 
-
+        // Reason Input Form
         TextArea reasonTextArea = new TextArea();
         
         reasonTextArea.setPromptText("Enter reason here...");
@@ -199,8 +206,7 @@ public class AdminHomePage implements EventHandler<ActionEvent> {
 
         dialog.getDialogPane().setContent(content);
 
-
-
+        // Get the Decline button and listener
         Node declineButton = dialog.getDialogPane().lookupButton(declineButtonType);
         declineButton.setDisable(true);
 
@@ -209,9 +215,10 @@ public class AdminHomePage implements EventHandler<ActionEvent> {
         });
 
 
-
+        // Handle the result of the dialog when a button is clicked
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == declineButtonType) {
+            	 // Return the trimmed text from the TextArea 
                 return reasonTextArea.getText().trim();
             }
             return null;
@@ -220,6 +227,7 @@ public class AdminHomePage implements EventHandler<ActionEvent> {
         Optional<String> result = dialog.showAndWait();
 
         result.ifPresent(reason -> {
+        	// Call the DeclineItem method in the controller with the item ID and reason
             Response<Item> res = ItemController.DeclineItem(item.getItem_id(), reason);
             if (res.getIsSuccess()) {
                 showAlert(AlertType.INFORMATION, "Success", "Item declined successfully.");

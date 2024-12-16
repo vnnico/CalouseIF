@@ -51,7 +51,7 @@ public class OfferedItemPage implements EventHandler<ActionEvent> {
         // Root container
         borderPane = new BorderPane();
 
-        // Menu Bar
+        // Menu Bar consist only Dashboard Page
         menuBar = new MenuBar();
         menu = new Menu("Menu");
         dashboardMenuItem = new MenuItem("Dashboard");
@@ -114,6 +114,7 @@ public class OfferedItemPage implements EventHandler<ActionEvent> {
             {
                 pane.setAlignment(Pos.CENTER);
 
+                // Accept and Decline button for each row 
                 acceptButton.setOnAction(event -> {
                     Offer offer = getTableView().getItems().get(getIndex());
                     handleAccept(offer);
@@ -154,7 +155,7 @@ public class OfferedItemPage implements EventHandler<ActionEvent> {
         borderPane.setCenter(offeredItemsTable);
         borderPane.setPadding(new Insets(10));
         
-     // Create Scene
+        // Create Scene
         scene = new Scene(borderPane, 1000, 600);
     }
 
@@ -163,12 +164,11 @@ public class OfferedItemPage implements EventHandler<ActionEvent> {
     }
 
     private void loadOfferedItems() {
+    	
+    	// Fetch offered items from db
         User currentUser = pageManager.getLoggedInUser();
-        if (currentUser == null) {
-            showAlert(AlertType.ERROR, "User Not Logged In", "Please log in to view offered items.");
-            pageManager.showLoginPage();
-            return;
-        }
+        
+        
         String sellerId = currentUser.getUser_id();
         Response<ArrayList<Offer>> res = ItemController.ViewOfferItem(sellerId);
         if (res.getIsSuccess() && res.getData() != null) {
@@ -239,7 +239,7 @@ public class OfferedItemPage implements EventHandler<ActionEvent> {
         Optional<String> result = dialog.showAndWait();
 
         result.ifPresent(reason -> {
-            // Call controller to decline the offer with the provided reason
+            // Decline the offer with the provided reason
             Response<Offer> res = ItemController.DeclineOffer(offer.getOffer_id(), reason);
             if (res.getIsSuccess()) {
                 showAlert(AlertType.INFORMATION, "Success", "Offer declined successfully.");

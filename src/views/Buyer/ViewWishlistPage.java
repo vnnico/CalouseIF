@@ -41,6 +41,8 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
     private void initUI() {
         borderPane = new BorderPane();
         
+        
+        // Header and title section
         HBox header = new HBox();
         header.setPadding(new Insets(10));
         header.setSpacing(10);
@@ -49,6 +51,7 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
         title.setStyle("-fx-font-size:20px;");
         header.getChildren().add(title);
 
+        // Menu bar consist of Home page and Purchase History pages
         MenuBar menuBar = new MenuBar();
         Menu menu = new Menu("Menu");
         MenuItem homepageMenuItem = new MenuItem("Homepage");
@@ -56,6 +59,7 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
         menu.getItems().addAll(homepageMenuItem, purchaseHistoryMenuItem);
         menuBar.getMenus().add(menu);
 
+        // When menu item clicked, it will redirect to desired page
         homepageMenuItem.setOnAction(e -> pageManager.showBuyerDashboard());
         purchaseHistoryMenuItem.setOnAction(e -> pageManager.showViewPurchaseHistory());
 
@@ -65,6 +69,7 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
         wishlistTable = new TableView<>();
 
         
+        // Configure Tables
         TableColumn<Wishlist, String> idColumn = new TableColumn<>("Wishlist ID");
         idColumn.setCellValueFactory(param -> {
             String id = param.getValue().getWishlist_id(); 
@@ -103,6 +108,8 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
             private final Button removeButton = new Button("Remove");
 
             {
+            	
+            	// Remove Item
                 removeButton.setOnAction(e -> {
                     Wishlist w = getTableView().getItems().get(getIndex());
                     handleRemove(w);
@@ -121,6 +128,7 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
         });
         
         
+        // Set column width
         idColumn.setMinWidth(100);
         itemNameColumn.setMinWidth(150);
         categoryColumn.setMinWidth(150);
@@ -129,6 +137,7 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
         
         wishlistTable.getColumns().addAll(idColumn, itemNameColumn, categoryColumn, sizeColumn, priceColumn, actionColumn);
 
+        // Scrollbar
         ScrollPane scrollPane = new ScrollPane(wishlistTable);
         scrollPane.setFitToWidth(true);
         scrollPane.setPadding(new Insets(10));
@@ -152,6 +161,8 @@ public class ViewWishlistPage implements EventHandler<ActionEvent>{
     }
 
     private void handleRemove(Wishlist w) {
+    	
+    	// Remove Confirmation Popup
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmationAlert.setTitle("Confirmation");
         confirmationAlert.setHeaderText("Remove Item");

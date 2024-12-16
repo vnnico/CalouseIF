@@ -31,8 +31,8 @@ import controllers.WishlistController;
 
 public class BuyerHomePage implements EventHandler<ActionEvent> {
 
-	 private BorderPane borderPane;
-	    private VBox headerContainer;
+		private BorderPane borderPane; // Main layout container
+	    private VBox headerContainer; // Header section container
 	    private TableView<Product> tableView;
 
 	    private Label header;
@@ -54,16 +54,21 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	        loadAllItems(); 	    }
 
 	    private void initUI() {
+	    	
+	    	// Main layout  container
 	        borderPane = new BorderPane();
 
+	        // Header Text Label
 	        header = new Label("Buyer Dashboard");
 	        header.setStyle("-fx-font-size: 20px; ");
 
+	        // Menu Bar consist of wishlist and purchase history page.
 	        menuBar = new MenuBar();
 	        menu = new Menu("Menu");
 	        wishlistMenuItem = new MenuItem("Wishlist");
 	        purchaseHistoryMenuItem = new MenuItem("Purchase History");
 
+	        // Search and Clear Button
 	        searchField = new TextField();
 	        searchField.setPromptText("Search items...");
 	        searchField.setPrefWidth(400);
@@ -91,9 +96,9 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	        tableView = new TableView<>();
 	        tableView.setPrefWidth(980);
 	        tableView.setPlaceholder(new Label("No items available"));
-	        //tableView.setAutoCreateColumns(false);
-
 	        
+
+	        // Define and configure table columns
 	        TableColumn<Product, String> idColumn = new TableColumn<>("Item ID");
 	        idColumn.setCellValueFactory(param -> {
 	            String id = param.getValue().item().getItem_id(); 
@@ -127,7 +132,7 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 
 	        
 	     
-	        
+	        // Define action column with buttons
 	        TableColumn<Product, Void> actionColumn = new TableColumn<>("Actions");
 	        actionColumn.setCellFactory(param -> new TableCell<>() {
 	            private final Button purchaseButton = new Button("Purchase");
@@ -138,6 +143,7 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	            {
 	                pane.setSpacing(10);
 
+	                // Attach event handlers to purchase, offer and wishlist button.
 	                purchaseButton.setOnAction(event -> {
 	                    Product product = getTableView().getItems().get(getIndex());
 	                    handlePurchase(product);
@@ -158,8 +164,10 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	            protected void updateItem(Void item, boolean empty) {
 	                super.updateItem(item, empty);
 	                if (empty) {
+	                	// Clear cell content if empty
 	                    setGraphic(null);
 	                } else {
+	                	// Set buttons for non-empty rows
 	                    setGraphic(pane);
 	                }
 	            }
@@ -191,6 +199,7 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 
 	    private void loadAllItems() {
 
+	    	// Fetch Items from db
 	        Response<ArrayList<Product>> res = ItemController.ViewItem();
 	        System.out.println(res.getData());
 	        if (res.getIsSuccess()) {
@@ -202,6 +211,7 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	    }
 
 	    private void handleSearch() {
+	    	// Get search query
 	        String query = searchField.getText().trim();
 	        if (query.isEmpty()) {
 	            loadAllItems();
@@ -222,12 +232,15 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	    }
 
 	    private void handleClear() {
+	    	// Clear search field and reload all items.
 	        searchField.clear(); 
 	        loadAllItems(); 
 	    }
 
 	    private void handlePurchase(Product product) {
 	        Item item = product.item();
+	        
+	        // Purchase Confirmation Alert
 	        Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
 	        confirmationAlert.setTitle("Confirmation");
 	        confirmationAlert.setHeaderText("Purchase Confirmation");
@@ -236,10 +249,12 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	        Optional<ButtonType> result = confirmationAlert.showAndWait();
 	        if (result.isPresent() && result.get() == ButtonType.OK) {
 	        	
+	        	// Return current authenticated user
 	            String userId = pageManager.getLoggedInUser().getUser_id();
 	            
 	            Response<models.Transaction> res;
 			
+	            // Handle transaction 
 				res = TransactionController.PurchaseItem(userId, product.getProduct_id());
 			
 	            if (res.getIsSuccess()) {
@@ -253,6 +268,7 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 
 	    private void handleOfferPrice(Product product) {
 	      
+	    	// Offer price input form will pop up
 	        Dialog<String> dialog = new Dialog<>();
 	        dialog.setTitle("Offer Price");
 	        dialog.setHeaderText("Enter your offer price for " + product.item().getItem_name());
@@ -276,11 +292,12 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	            return null;
 	        });
 
+	        // Submit the offer price value
 	        Optional<String> offerResult = dialog.showAndWait();
 	        if (offerResult.isPresent()) {
 	            String offerValue = offerResult.get();
 	     
-	       
+	            
 	            String buyerId = pageManager.getLoggedInUser().getUser_id();
 	            Response<Offer> res = ItemController.OfferPrice(product.getProduct_id(), buyerId, offerValue);
 	            
@@ -295,6 +312,7 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 
 	    private void handleAddToWishlist(Product product) {
 	    	
+	    	// Wishlist Confirmation Pop UP
 	        Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
 	        confirmationAlert.setTitle("Add to Wishlist");
 	        confirmationAlert.setHeaderText("Confirm Wishlist Addition");
@@ -303,6 +321,8 @@ public class BuyerHomePage implements EventHandler<ActionEvent> {
 	        Optional<ButtonType> result = confirmationAlert.showAndWait();
 	        if (result.isPresent() && result.get() == ButtonType.OK) {
 	            String userId = pageManager.getLoggedInUser().getUser_id();
+	            
+	            // Add item to wishlist 
 	            Response<models.Wishlist> res = WishlistController.AddWishlist(product.getProduct_id(), userId);
 	            if (res.getIsSuccess()) {
 	                showAlert(AlertType.INFORMATION, "Wishlist Updated", product.item().getItem_name() + " has been added to your wishlist.");
