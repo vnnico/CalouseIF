@@ -11,7 +11,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemController {
+	
+	
+	public ItemController() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	/**
+	 * VIEW ALL ITEMS
+	 * [BUYER]
+	 * @return
+	 */
+	public static Response<ArrayList<Product>> ViewItem(){
+		return Item.ViewItem();
+	}
+	
+	/**
+	 * BROWSE ITEM 
+	 * [BUYER]
+	 * @param Item_name
+	 * @return
+	 */
+	public static Response<ArrayList<Product>> BrowseItem(String Item_name){
+		return Item.BrowseItem(Item_name);
+	}
+	
 
+	/**
+	 * UPLOAD ITEM
+	 * [SELLER]
+	 * @param Seller_id
+	 * @param Item_name
+	 * @param Item_category
+	 * @param Item_size
+	 * @param Item_price
+	 * @return
+	 */
 	public static Response<Item> UploadItem(String Seller_id, String Item_name, String Item_category, String Item_size, String Item_price) {
 		Response<Item> res = new Response<Item>();
 		
@@ -67,6 +102,16 @@ public class ItemController {
 		return Item.UploadItem(Seller_id,Item_name, Item_category, Item_size, new BigDecimal(Item_price));
 	}
 	
+	/**
+	 * EDIT ITEM
+	 * [SELLER]
+	 * @param Item_id
+	 * @param Item_name
+	 * @param Item_category
+	 * @param Item_size
+	 * @param Item_price
+	 * @return
+	 */
 	public static Response<Item> EditItem(String Item_id, String Item_name, String Item_category, String Item_size, String Item_price) {
 		Response<Item> res = new Response<Item>();
 
@@ -122,33 +167,46 @@ public class ItemController {
 		return Item.EditItem(Item_id, Item_name, Item_category, Item_size, new BigDecimal(Item_price));
 	}
 	
+	
+	/**
+	 * DELETE ITEM
+	 * [SELLER]
+	 * @param Item_id
+	 * @return
+	 */
 	public static Response<Item> DeleteItem(String Item_id) {		
 		return Item.DeleteItem(Item_id);
 	}
 	
-	public static Response<ArrayList<Product>> BrowseItem(String Item_name){
-		return Item.BrowseItem(Item_name);
-	}
-	
-	public static Response<ArrayList<Product>> ViewItem(){
-		return Item.ViewItem();
-	}
-	
+	/**
+	 * VIEW SELLER ITEM
+	 * [SELLER]
+	 * @param Seller_id
+	 * @return
+	 */
 	public static ArrayList<Item> ViewSellerItem(String Seller_id){
 		Response<ArrayList<Product>> res = Item.ViewSellerItem(Seller_id);
 		ArrayList<Product> data = res.getData();
-		ArrayList<Item> item = new ArrayList<Item>();
 		
+		// Temporary array to store seller items
+		ArrayList<Item> seller_items = new ArrayList<Item>();
 		for (Product product : data) {
-			item.add(product.item());
+			seller_items.add(product.item());
 		}
 		
-		return item;
+		return seller_items;
 	}
-	
+
+	/**
+	 * VIEW REQUESTED ITEM
+	 * [ADMIN]
+	 * @param Item_status
+	 * @return
+	 */
 	public static Response<ArrayList<Item>> ViewRequestItem(String Item_status){
 		Response<ArrayList<Product>> res = Item.ViewRequestItem();
 		ArrayList<Product> data = res.getData();
+		// Temporary array to store seller items
 		ArrayList<Item> item = new ArrayList<Item>();
 		
 		for (Product product : data) {
@@ -162,8 +220,34 @@ public class ItemController {
 		return resResult;
 	}
 	
+	/**
+	 * VIEW ACCEPTED ITEM
+	 * @return
+	 */
+	public static Response<ArrayList<Product>> ViewAcceptedItem(){
+		return Item.ViewAcceptedItem();
+	}
+	
+	/**
+	 * VIEW OFFERED ITEM
+	 * [SELLER]
+	 */
+	public static Response<ArrayList<Offer>> ViewOfferItem(String Seller_id){
+		return Item.ViewOfferItem(Seller_id);
+	}
+	
+	/**
+	 * OFFER PRICE 
+	 * [BUYER]
+	 * @param Product_id
+	 * @param Buyer_id
+	 * @param Item_price
+	 * @return
+	 */
 	public static Response<Offer> OfferPrice(String Product_id, String Buyer_id, String Item_price) {
 		Response<Offer> res = new Response<Offer>();
+		
+		// Validating Price 
 		try {
 			if(new BigDecimal(Item_price).compareTo(BigDecimal.ZERO) == 0) {
 				res.setMessages("Item price cannot be 0!");
@@ -181,12 +265,26 @@ public class ItemController {
 		return Item.OfferPrice(Product_id, Buyer_id, new BigDecimal(Item_price));
 	}
 	
+	/**
+	 * ACCEPT OFFER 
+	 * [SELLER]
+	 * @param Item_id
+	 * @return
+	 */
 	public static Response<Offer> AcceptOffer(String Item_id) {
 		return Item.AcceptOffer(Item_id);
 	}
 	
+	/**
+	 * DECLINE OFFER
+	 * [SELLER]
+	 * @param Offer_id
+	 * @param Reason
+	 * @return
+	 */
 	public static Response<Offer> DeclineOffer(String Offer_id, String Reason) {
 		Response<Offer> res = new Response<Offer>();
+		// Validate reason 
 		if(Reason.isEmpty()) {
 			res.setMessages("Item price cannot be empty!");
 			res.setIsSuccess(false);
@@ -196,11 +294,24 @@ public class ItemController {
 		
 		return Item.DeclineOffer(Offer_id, Reason);
 	}
-	
+
+	/**
+	 * APPROVE ITEM
+	 * [ADMIN]
+	 * @param Item_id
+	 * @return
+	 */
 	public static Response<Item> ApproveItem(String Item_id) {
 		return Item.ApproveItem(Item_id);
 	}
 	
+	/**
+	 * DECLINE ITEM
+	 * [ADMIN]
+	 * @param Item_id
+	 * @param Reason
+	 * @return
+	 */
 	public static Response<Item> DeclineItem(String Item_id, String Reason) {
 		Response<Item> res = new Response<Item>();
 		if(Reason.isEmpty()) {
@@ -213,16 +324,6 @@ public class ItemController {
 		return Item.DeclineItem(Item_id, Reason);
 	}
 	
-	public static Response<ArrayList<Product>> ViewAcceptedItem(){
-		return Item.ViewAcceptedItem();
-	}
-	
-	public static Response<ArrayList<Offer>> ViewOfferItem(String Seller_id){
-		return Item.ViewOfferItem(Seller_id);
-	}
-	
-	public ItemController() {
-		// TODO Auto-generated constructor stub
-	}
+
 
 }
