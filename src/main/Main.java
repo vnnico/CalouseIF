@@ -13,8 +13,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
        
-
     	 try {
+    		 // Initialize Login Page
              PageManager pageManager = new PageManager(primaryStage);
              pageManager.showLoginPage();
              primaryStage.setTitle("CaLouseIF");

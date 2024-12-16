@@ -26,13 +26,19 @@ public class Wishlist extends Model {
 		this.user_id = user_id;
 	}
 	
+	/**
+	 * VIEW ALL WISHLIST
+	 * [BUYER]
+	 * @param User_id
+	 * @return
+	 */
 	public static Response<ArrayList<Wishlist>> ViewWishlist(String User_id) {
 	    Response<ArrayList<Wishlist>> res = new Response<>();
 
 	    try {
 	        ArrayList<Wishlist> listWishlist = WishlistFactory.createWishlist().where("User_id", "=", User_id);
 	        
-	        res.setMessages("Success: All Wishlist Retrieved!");
+	        res.setMessages("Success: Fetched all wishlist");
 	        res.setIsSuccess(true);
 	        res.setData(listWishlist);
 	        return res;
@@ -46,10 +52,19 @@ public class Wishlist extends Model {
 	    }
 	}
 
+	/**
+	 * ADD AN ITEM TO WISHLIST
+	 * [BUYER]
+	 * @param Product_id
+	 * @param User_id
+	 * @return
+	 */
 	public static Response<Wishlist> AddWishlist(String Product_id, String User_id) {
 	    Response<Wishlist> res = new Response<>();
 
 	    try {
+	    	
+	    	// Create new wishlist and insert into database.
 	        Wishlist wishlist = WishlistFactory.createWishlist(
 	            GenerateID.generateNewId(WishlistFactory.createWishlist().latest().getWishlist_id(), "WS"), 
 	            Product_id, User_id
@@ -57,7 +72,7 @@ public class Wishlist extends Model {
 
 	        wishlist.insert();
 	        
-	        res.setMessages("Success: Wishlist Added!");
+	        res.setMessages("Success: Wishlist created");
 	        res.setIsSuccess(true);
 	        res.setData(wishlist);
 	        return res;
@@ -71,6 +86,12 @@ public class Wishlist extends Model {
 	    }
 	}
 
+	/**
+	 * REMOVE WISHLIST
+	 * [BUYER]
+	 * @param Wishlist_id
+	 * @return
+	 */
 	public static Response<Wishlist> RemoveWishlist(String Wishlist_id) {
 	    Response<Wishlist> res = new Response<>();
 

@@ -27,21 +27,31 @@ public class Transaction extends Model{
 		this.transaction_id = transaction_id;
 	}
 
+	/**
+	 * PURCHASE ITEM
+	 * [BUYER]
+	 * @param Buyer_id
+	 * @param Product_id
+	 * @return
+	 */
 	public static Response<Transaction> PurchaseItem(String Buyer_id, String Product_id) {
 		Response<Transaction> res = new Response<Transaction>();
 	    
 	    try {
+	    	
+	    	// Create transaction and insert into database
 	    	Transaction transaction = TransactionFactory.createTransaction(Buyer_id, Product_id, 
 	    			GenerateID.generateNewId(TransactionFactory.createTransaction().latest().getTransaction_id(), "TR"));
 	    	
 	    	transaction.insert();
 	        
+	    	// Remove wishlist for item that has been purchased
 	    	ArrayList<Wishlist> wishlists = WishlistFactory.createWishlist().where("Product_id", "=", Product_id);
 	    	for (Wishlist wishlist : wishlists) {
 				Wishlist.RemoveWishlist(wishlist.getWishlist_id());
 			}
 	    	
-	        res.setMessages("Success: Item Purchased!");
+	        res.setMessages("Success: Item purchased");
 	        res.setIsSuccess(true);
 	        res.setData(transaction);
 	        return res;
@@ -54,16 +64,23 @@ public class Transaction extends Model{
 	        return res;
 	    }
 	}
-	
+
+	/**
+	 * VIEW TRANSACTION HISTORY
+	 * [BUYER]
+	 * @param User_id
+	 * @return
+	 */
 	public static Response<ArrayList<Transaction>> ViewHistory(String User_id){
 		Response<ArrayList<Transaction>> res = new Response<ArrayList<Transaction>>();
 		
 		try {
-			ArrayList<Transaction> listTransaction = TransactionFactory.createTransaction().where("User_id", "=", User_id);
 			
-			res.setMessages("Success: All Transaction History Retrieved!");
+			ArrayList<Transaction> transactionList = TransactionFactory.createTransaction().where("User_id", "=", User_id);
+			
+			res.setMessages("Success: Fetched all purchased history");
 			res.setIsSuccess(true);
-			res.setData(listTransaction);
+			res.setData(transactionList);
 			return res;
 		} catch (Exception e) {
 	        e.printStackTrace();

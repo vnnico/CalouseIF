@@ -2,7 +2,7 @@ package services;
 
 public class Response<T>{
 
-	// notyet
+	// Response Structure consist of message, isSuccess, and data.
 	private String messages;
 	private Boolean isSuccess;
 	private T data;
