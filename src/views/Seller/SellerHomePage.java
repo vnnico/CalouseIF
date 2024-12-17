@@ -28,7 +28,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
     private BorderPane borderPane, headerSection;
     private GridPane formPane;
     private TableView<Item> table;
-    private TextField priceField; // Replaced Spinner with TextField
+    private TextField priceField; 
     private TextField itemNameField, itemCategoryField, itemSizeField;
     private Label header, itemNameLabel, itemCategoryLabel, itemSizeLabel, itemPriceLabel;
     private HBox buttonContainer;
@@ -38,8 +38,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
     private MenuItem offeredItemsMenuItem;
     private Scene scene;
 
-    private String temp_id; // To store the item_id of the selected item
-
+    private String temp_id;
     private PageManager pageManager;
 
     public SellerHomePage(PageManager pageManager) {
@@ -52,15 +51,12 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         loadSellerItems();
     }
 
-    /**
-     * Initialize UI components excluding the table and menu.
-     */
     private void initUI() {
         borderPane = new BorderPane();
         headerSection = new BorderPane();
         formPane = new GridPane();
 
-        // Menu
+        // Menu Bar consist only offered items.
         menuBar = new MenuBar();
         menu = new Menu("Menu");
         offeredItemsMenuItem = new MenuItem("Offered Items");
@@ -96,9 +92,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         table = new TableView<>();
     }
 
-    /**
-     * Initialize the table with necessary columns and action buttons.
-     */
+   
     private void initTable() {
         // Define columns
         TableColumn<Item, String> itemIDColumn = new TableColumn<>("Item ID");
@@ -133,6 +127,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
                 pane.setSpacing(10);
                 pane.setAlignment(Pos.CENTER);
 
+                // Edit and Delete buttons for each row
                 editButton.setOnAction(event -> {
                     Item selectedItem = getTableView().getItems().get(getIndex());
                     handleEdit(selectedItem);
@@ -159,7 +154,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         table.getColumns().addAll(itemIDColumn, itemNameColumn, itemCategoryColumn, itemSizeColumn, itemPriceColumn, actionColumn);
         table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-        // Listener for table row selection to store temp_id (optional if needed)
+        // Listener for table row selection to store temp_id
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 temp_id = newSelection.getItem_id();
@@ -167,16 +162,11 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         });
     }
 
-    /**
-     * Initialize the menu with event handlers.
-     */
     private void initMenu() {
         offeredItemsMenuItem.setOnAction(event -> pageManager.showOfferedItemPage());
     }
 
-    /**
-     * Set up the layout of the page, arranging all components appropriately.
-     */
+
     private void setLayout() {
         // Layout for input form
         formPane.add(itemNameLabel, 0, 0);
@@ -219,12 +209,10 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
 
    
     private void loadSellerItems() {
+    	
+    	// Fetch seller items from db
         User currentUser = pageManager.getLoggedInUser();
-        if (currentUser == null) {
-            showAlert(AlertType.ERROR, "User Not Logged In", "Please log in to view your items.");
-            pageManager.showLoginPage();
-            return;
-        }
+  
         String sellerId = currentUser.getUser_id();
         ArrayList<Item> res = ItemController.ViewSellerItem(sellerId);
         ObservableList<Item> items = FXCollections.observableArrayList(res);
@@ -235,7 +223,11 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
   
     @Override
     public void handle(ActionEvent event) {
+    	
+    	// Upload Item 
         if (event.getSource() == submitButton) {
+        	
+        	// Gather neccessary value
             String itemName = itemNameField.getText().trim();
             String itemCategory = itemCategoryField.getText().trim();
             String itemSize = itemSizeField.getText().trim();
@@ -263,6 +255,8 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
 
  
     private void handleEdit(Item item) {
+    	
+    	// Edit form pop up
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit Item");
         dialog.setHeaderText("Edit Item Details");
@@ -272,6 +266,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 
     
+        // Create edit form page 
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
@@ -286,6 +281,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
         TextField priceEditField = new TextField();
         priceEditField.setText(item.getItem_price().toString());
 
+        // Layout the form 
         grid.add(new Label("Item Name:"), 0, 0);
         grid.add(itemNameEdit, 1, 0);
         grid.add(new Label("Item Category:"), 0, 1);
@@ -311,6 +307,7 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
 
         Optional<ButtonType> result = dialog.showAndWait();
 
+        // Execute updated values
         if (result.isPresent() && result.get() == saveButtonType) {
             String editedName = itemNameEdit.getText().trim();
             String editedCategory = itemCategoryEdit.getText().trim();
@@ -330,12 +327,17 @@ public class SellerHomePage implements EventHandler<ActionEvent> {
 
   
     private void handleDelete(Item item) {
+    	
+    	
+    	// Delete confirmation pop up
         Alert confirmationAlert = new Alert(AlertType.CONFIRMATION);
         confirmationAlert.setTitle("Confirm Deletion");
         confirmationAlert.setHeaderText("Delete Item");
         confirmationAlert.setContentText("Are you sure you want to delete the item: " + item.getItem_name() + "?");
 
         Optional<ButtonType> result = confirmationAlert.showAndWait();
+        
+        // Execute Deletion of item
         if (result.isPresent() && result.get() == ButtonType.OK) {
             Response<Item> res = ItemController.DeleteItem(item.getItem_id());
             if (res.getIsSuccess()) {

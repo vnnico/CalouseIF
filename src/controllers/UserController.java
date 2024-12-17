@@ -2,31 +2,22 @@ package controllers;
 
 import models.User;
 import services.Response;
+import utils.ValidatePassword;
+import utils.ValidatePhoneNumber;
 
 public class UserController {
 
-	private static Boolean PasswordValidation(String words) {
-		char[] uniqueSymbols = {'!', '@', '#', '$', '%', '^', '&', '*'};
-		for (char c : uniqueSymbols) {
-			for(int i = 0; i < words.length(); i++) {
-				if(words.charAt(i) == c) {
-					return true;
-				}
-			}
-		}
-		return false;
+	public UserController() {
+		// TODO Auto-generated constructor stub
 	}
 	
-	private static Boolean PhoneNumberValidation(String words) {
-		 
-	    if (!words.startsWith("+62")) {
-	        return false;
-	    }
-	    
-	    return true;
-	
-	}
-	
+	/**
+	 * LOGIN
+	 * [GUEST]
+	 * @param Username
+	 * @param Password
+	 * @return
+	 */
 	public static Response<User> Login(String Username, String Password) {
 		Response<User> res = new Response<User>();
 		
@@ -45,6 +36,16 @@ public class UserController {
 		return User.Login(Username, Password);
 	}
 	
+	/**
+	 * REGISTER
+	 * [GUEST]
+	 * @param Username
+	 * @param Password
+	 * @param Phone_Number
+	 * @param Address
+	 * @param Role
+	 * @return
+	 */
 	public static Response<User> Register(String Username, String Password, String Phone_Number, String Address, String Role) {
 		Response<User> res = new Response<User>();
 		
@@ -93,12 +94,12 @@ public class UserController {
 			res.setIsSuccess(false);
 			res.setData(null);
 			return res;
-		}else if(!PasswordValidation(Password)) {
+		}else if(!ValidatePassword.validate(Password)) {
 			res.setMessages("Password must include special characters (!, @, #, $, %, ^, &, *)!");
 			res.setIsSuccess(false);
 			res.setData(null);
 			return res;
-		}else if(!PhoneNumberValidation(Phone_Number)) {
+		}else if(!ValidatePhoneNumber.validate(Phone_Number)) {
 			res.setMessages("Phone Number must at least contains a +62!");
 			res.setIsSuccess(false);
 			res.setData(null);
@@ -113,7 +114,5 @@ public class UserController {
 		return null;
 	}
 	
-	public UserController() {
-		// TODO Auto-generated constructor stub
-	}
+
 }

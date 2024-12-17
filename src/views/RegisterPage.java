@@ -86,18 +86,18 @@ public class RegisterPage implements EventHandler<ActionEvent> {
      
         borderContainer.setPadding(new Insets(20, 20, 20, 20));
         
- 
+        // Top Section - Title
         HBox topBox = new HBox(titleLbl);
         topBox.setAlignment(Pos.CENTER);
         topBox.setPadding(new Insets(0, 0, 20, 0)); 
         borderContainer.setTop(topBox);
         
-   
+        // Center Section - Form GridPane
         gridContainer.setHgap(10);
         gridContainer.setVgap(15);
         gridContainer.setAlignment(Pos.CENTER);
         
-     
+        // Define Column Constraints for GridPane
         ColumnConstraints col1 = new ColumnConstraints();
         col1.setHalignment(HPos.RIGHT); // Right-align labels
         col1.setPrefWidth(120);
@@ -149,9 +149,6 @@ public class RegisterPage implements EventHandler<ActionEvent> {
         });
     }
 
-    /**
-     * Handle ActionEvents triggered by UI components.
-     */
     @Override
     public void handle(ActionEvent event) {
         if (event.getSource() == registerBtn) {
@@ -162,7 +159,7 @@ public class RegisterPage implements EventHandler<ActionEvent> {
             
             String role = buyerRB.isSelected() ? "buyer" : "seller";
        
-            // Call UserController.Register
+            // Register Controller
             Response<User> res = UserController.Register(username, password, phone, address, role);
             if (res.getIsSuccess()) {
                 showAlert(Alert.AlertType.INFORMATION, "Registration Successful", "You have successfully registered. Please login.");
@@ -173,13 +170,7 @@ public class RegisterPage implements EventHandler<ActionEvent> {
         }
     }
     
-    /**
-     * Utility method to display alerts.
-     * 
-     * @param type    The type of alert (e.g., WARNING, ERROR).
-     * @param title   The title of the alert dialog.
-     * @param content The content/message of the alert.
-     */
+
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -189,11 +180,7 @@ public class RegisterPage implements EventHandler<ActionEvent> {
         alert.showAndWait();
     }
     
-    /**
-     * Getter for the Scene.
-     * 
-     * @return The Scene object representing the Register Page.
-     */
+   
     public Scene getScene() {
         return scene;
     }

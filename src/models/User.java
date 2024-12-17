@@ -32,29 +32,39 @@ public class User extends Model{
 		this.role = role;
 	}
 	
+	/**
+	 * LOGIN 
+	 * [GUEST]
+	 * @param Username
+	 * @param Password
+	 * @return
+	 */
 	public static Response<User> Login(String Username, String Password) {
 		   Response<User> res = new Response<User>();
 		    
 		    try {
-		    	ArrayList<User> users = UserFactory.createUser().where("Username", "=", Username);
-		        if(users.isEmpty()) {
-		        	res.setMessages("Error: User Not Found!");
+		    	
+		    	
+		    	ArrayList<User> user = UserFactory.createUser().where("Username", "=", Username);
+		        if(user.isEmpty()) {
+		        	res.setMessages("Error: User not found");
 		            res.setIsSuccess(false);
 		            res.setData(null);
 		            return res;
 		        }
 		    	
-		    	User foundUser = users.get(0);
-		        if (!foundUser.getPassword().equals(Password)) {
-		            res.setMessages("Error: Wrong Password!");
+		    	User isFound = user.get(0);
+		    	// Authenticate user's password
+		        if (!isFound.getPassword().equals(Password)) {
+		            res.setMessages("Error: Wrong password");
 		            res.setIsSuccess(false);
 		            res.setData(null);
 		            return res;
 		        }
 		        
-		        res.setMessages("Success: User Authenticated!");
+		        res.setMessages("Success: User Authenticated");
 		        res.setIsSuccess(true);
-		        res.setData(foundUser);
+		        res.setData(isFound);
 		        return res;
 		        
 		    }  catch (Exception e) {
@@ -66,15 +76,26 @@ public class User extends Model{
 		    }
 	}
 
+	/**
+	 * REGISTER
+	 * [GUEST]
+	 * @param Username
+	 * @param Password
+	 * @param Phone_Number
+	 * @param Address
+	 * @param Role
+	 * @return
+	 */
 	public static Response<User> Register(String Username, String Password, String Phone_Number, String Address, String Role) {
 	    Response<User> res = new Response<>();
 	    
 	    try {
+	    	
+	    	// CREATE USER and insert into database
 	        User user = UserFactory.createUser(
 	            GenerateID.generateNewId(UserFactory.createUser().latest().getUser_id(), "US"),
 	            Username, Password, Phone_Number, Address, Role
 	        );
-
 	        user.insert();
 	        
 	        res.setMessages("Success: User Registered!");
@@ -91,20 +112,31 @@ public class User extends Model{
 	    }
 	}
 
+	/**
+	 * VALIDATE USER
+	 * [GUEST]
+	 * @param Username
+	 * @param Password
+	 * @param Phone_Number
+	 * @param Address
+	 * @return
+	 */
 	public static Response<User> CheckAccountValidation(String Username, String Password, String Phone_Number, String Address) {
 		Response<User> res = new Response<User>();
 	    try {
-	    	ArrayList<User> users = UserFactory.createUser().where("Username", "=", Username);
-	    	if(users.isEmpty()) {
-	    		res.setMessages("Error: User Not Found!");
+	    	
+	    	
+	    	ArrayList<User> user = UserFactory.createUser().where("Username", "=", Username);
+	    	if(user.isEmpty()) {
+	    		res.setMessages("Error: User not found");
 	    		res.setIsSuccess(false);
 	    		res.setData(null);
 	    		return res;
 	    	}
 	    	
-	    	res.setMessages("Success: User Found!");
+	    	res.setMessages("Success: User found");
 	    	res.setIsSuccess(true);
-	    	res.setData(users.get(0));
+	    	res.setData(user.get(0));
 	    	return res;
 	        
 	    } catch (Exception e) {
